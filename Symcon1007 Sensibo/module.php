@@ -65,7 +65,7 @@
 		//**************************************************************************
 		//
 		//**************************************************************************
-		public function CheckResult(string $result)
+		public function CheckResult(array $result)
 			{
 			$status = false;	
 			if ( isset($result['status']))
