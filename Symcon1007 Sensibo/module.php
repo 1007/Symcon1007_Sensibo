@@ -65,7 +65,7 @@
 		//**************************************************************************
 		//
 		//**************************************************************************
-		public function CheckResult($result)
+		public function CheckResult(string $result)
 			{
 			$status = false;	
 			if ( isset($result['status']))
@@ -94,9 +94,23 @@
 			//Never delete this line!
 			parent::Destroy();
 			}
+		
+		//**************************************************************************
+		//
+		//**************************************************************************    
+		protected function UnregisterTimer($Name)
+			{
+			$id = @IPS_GetObjectIDByIdent($Name, $this->InstanceID);
+			if ($id > 0)
+				{
+				if (!IPS_EventExists($id))
+					throw new Exception('Timer not present', E_USER_NOTICE);
+				IPS_DeleteEvent($id);
+				}
+			}
 
 
-    	public function SetACState($status)
+    	public function SetACState(bool $status)
 			{
 		
 		
@@ -104,7 +118,7 @@
 
         	}
 
-    	public function GetAllDevices($status)
+    	public function GetAllDevices(bool $status)
 			{
 		
 			
@@ -116,7 +130,7 @@
    		//******************************************************************************
 		//	Curl Abfrage ausfuehren
 		//******************************************************************************
-		function DoCurl($url,$debug=false)
+		function DoCurl(string $url,bool $debug=false)
 			{
 
 			$curl = curl_init($url);
