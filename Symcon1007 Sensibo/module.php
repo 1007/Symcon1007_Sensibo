@@ -62,12 +62,17 @@
 
     public function SetACState($status)
 		{
-        // Selbsterstellter Code
+		
+		
+
+
         }
 
     public function GetAllDevices($status)
 		{
-        // Selbsterstellter Code
+		
+			
+			
         }
 
 
