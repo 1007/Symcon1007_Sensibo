@@ -1,0 +1,14 @@
+{
+	"id": "{661213AB-C412-087F-7F96-4FCBAA704433}",
+	"name": "Sensibo",
+	"type": 3,
+	"vendor": "",
+	"aliases": 
+	[
+		"Sensibo"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "SSB"
+}
