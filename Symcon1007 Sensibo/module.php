@@ -73,11 +73,11 @@
 
 			if ( $status != 'success' )
 				{
-				$this->SendDebug(__FUNCTION__,"Success NOK : " .$result,0);
+				$this->SendDebug(__FUNCTION__,"Success NOK : " ,0);
 				return false;	
 				}	
 			
-			$this->SendDebug(__FUNCTION__,"Success OK : " .$result,0);
+			$this->SendDebug(__FUNCTION__,"Success OK : " ,0);
 			return true;	
 
 
