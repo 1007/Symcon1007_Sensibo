@@ -20,7 +20,7 @@ und die Klimaanlage zu steuern.
 
 https://github.com/1007/Symcon1007_Sensibo
 
-Instanz hinzufuegen.
+Instanz hinzufuegen ( Geraet! ).
 
 
 
