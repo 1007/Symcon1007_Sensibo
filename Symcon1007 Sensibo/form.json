@@ -9,11 +9,20 @@
 
     { "type": "ValidationTextBox", "name": "APIKey", "caption": "API Key" },
     
+    { "type": "ValidationTextBox", "name": "GeraeteID", "caption": "Geraete ID" },
+
     { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" }
 
 
   ],
   
+  "actions":
+  [  
+    
+    { "type": "Button", "label": "Update Data",                 "onClick": "SSB_Update($id);" }
+    
+
+  ],
 
 
   "status":
@@ -21,7 +30,8 @@
         { "code": 101, "icon": "active", "caption": "Sensibo wird erstellt..." },
         { "code": 102, "icon": "active", "caption": "Sensibo ist aktiv" },
       
-        { "code": 202, "icon": "error",  "caption": "API Key falsch" }
+        { "code": 202, "icon": "error",  "caption": "API Key falsch" },
+        { "code": 203, "icon": "error",  "caption": "Geraete ID falsch" }
 
     ]
 

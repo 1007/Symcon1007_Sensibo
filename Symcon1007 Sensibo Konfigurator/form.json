@@ -1,43 +1,66 @@
-{
-    "elements": [{
+    {
+    "elements": 
+            [
+            { 
+            "type": "Button",
+            "caption": "Dokumentation",
+            "onClick": "echo 'https://github.com/1007/Symcon1007_Sensibo/tree/master/';"
+            },
+            {
             "name": "RootId",
             "type": "SelectCategory",
-            "caption": "Create under category"
-        }
-    ],
-    "actions": [
-        {
+            "caption": "Wo sollen die Instanzen erstellt werden?"
+            },
+            { 
+            "type": "ValidationTextBox",
+            "name": "APIKey",
+            "caption": "API Key" 
+            }
+            ],
+
+    "actions": 
+            [
+            {
             "type": "Configurator",
             "name": "Configuration",
             "rowCount": 20,
             "add": false,
             "delete": true,
-            "sort": {
-                "column": "group",
-                "direction": "ascending"
-            },
-            "columns": [{
-                    "caption": "ObjectID",
+            "sort":     {
+                        "column": "objid",
+                        "direction": "ascending"
+                        },
+            "columns": [
+                {
+                    "caption": "ID",
                     "name": "objid",
+                    "width": "50px"
+                }, {
+                    "caption": "Model",
+                    "name": "model",
                     "width": "100px"
                 }, {
-                    "caption": "Type",
-                    "name": "type",
+                    "caption": "ID",
+                    "name": "id",
                     "width": "100px"
                 }, {
-                    "caption": "Group",
-                    "name": "group",
-                    "width": "250px"
+                    "caption": "MAC Adresse",
+                    "name": "mac",
+                    "width": "150px"
                 }, {
-                    "caption": "Device",
-                    "name": "device",
-                    "width": "250px"
-                }, {
-                    "caption": "Name",
-                    "name": "name",
+                    "caption": "Seriennummer",
+                    "name": "serial",
+                    "width": "150px"
+                },
+                {
+                    "caption": "Raum",
+                    "name": "room",
                     "width": "auto"
                 }
+                
+                
             ],
-            "values": []
+            "values": [ ]
         }]
-}
+    }
+
