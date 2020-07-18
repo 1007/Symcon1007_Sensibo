@@ -38,9 +38,34 @@ Werden automatisch gefunden.
  Folgende Befehle sind unter anderen im Moment moeglich:
 
 SSB_SetACOn($InstanceID, "on");
+
 SSB_SetACOn($InstanceID, "off");
 
 SSB_SetACTemperatur($InstanceID, 22);
+
+SSB_SetACSwing($InstanceID, "rangeFull");
+
+SSB_SetACSwing($InstanceID, "stopped");
+
+SSB_SetACFanLevel($InstanceID, "low");
+
+SSB_SetACFanLevel($InstanceID, "medium");
+
+SSB_SetACFanLevel($InstanceID, "high");
+
+SSB_SetACFanLevel($InstanceID, "auto");
+
+SSB_SetACMode($InstanceID, "heat");
+
+SSB_SetACMode($InstanceID, "fan");
+
+SSB_SetACMode($InstanceID, "auto");
+
+SSB_SetACMode($InstanceID, "dry");
+
+
+
+
 
 
 
