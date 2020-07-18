@@ -25,7 +25,7 @@
 			$this->RegisterPropertyString("APIKey", "");
 			$this->RegisterPropertyString("GeraeteID", "");
 			$this->RegisterTimer("SSB_UpdateTimer", 10, 'SSB_Update($_IPS["TARGET"]);');
-			$this->RegisterAttributeString("AllDevices", "Empty");
+			$this->RegisterAttributeString("AllDevices", "");
 
             // Diese Zeile nicht löschen.
             parent::Create();
@@ -38,6 +38,8 @@
 		//**************************************************************************        
 		public function ApplyChanges() 
 			{
+
+			$this->GetConfigurationForm();
 
         	//Timer stellen
 			$interval = $this->ReadPropertyInteger("Intervall") ;
@@ -77,19 +79,31 @@
 			else
 				return false;
 
-			// print_r($result);	
-
 			foreach($result as $r )
 				{
 				if ( isset($r['id']))	
 					$this->SendDebug(__FUNCTION__,"Geraete ID : " .$r['id'],0);
 
-
 				}
+
 
 			}
 			
-			
+
+		//**************************************************************************
+		// 
+		//**************************************************************************
+		public function UpdateDevices()
+			{
+
+			$this->SendDebug(__FUNCTION__,"Suche Geraete",0);
+
+			$this->GetAllDevices();
+
+			$this->ReloadForm();
+
+			}
+				
    		//**************************************************************************
 		// manuelles Holen der Daten oder ueber Timer
 		//**************************************************************************
@@ -98,9 +112,17 @@
 	
 			$this->GetAllDevices();	
 
+			
+
 			$apikey = $this->GetAPIKey();
 
 			$deviceID = $this->GetDeviceID();
+
+			if ( $deviceID == "" )
+				{
+				$this->SendDebug(__FUNCTION__,"Keine Device ID",0);
+				return;
+				}
 
 			$url = "https://home.sensibo.com/api/v2/pods/".$deviceID."?fields=*&apiKey=".$apikey;
 
@@ -158,6 +180,8 @@
 							array("id","Device ID",0),
 							array("firmwareVersion","Aktuelle Firmware",0),
 							array("roomIsOccupied","Raum ist belegt",0,"~Switch"),
+							// array("motionConfig","????",0,"~Switch"),
+								   
 							array("firmwareType","Firmware Type",0),
 							array("productModel","Modell",0),
 							array("temperatureUnit","Temperatureinheit",0),
@@ -173,7 +197,7 @@
                 $keys = array( 	array('on','AC Status',0,"~Switch"),
                                 array('fanLevel','Luefter Level',0),
                                 array("temperatureUnit",'Temperatureinheit',0),
-                                array("targetTemperature",'Soll Temperatur',0),
+                                array("targetTemperature",'Soll Temperatur',2,"~Temperature"),
                                 array("mode",'Modus',0),
                                 array("swing",'Swing',0),
                             
@@ -185,8 +209,8 @@
 				{
                 $level = $result['measurements'];
 
-                $keys = array( 	array('temperature','Ist Temperatur',"Temperatureinheit",0),
-								array('humidity','Ist Luftfeuchtigkeit',0,0),
+                $keys = array( 	array('temperature','Ist Temperatur',2,"~Temperature"),
+								array('humidity','Ist Luftfeuchtigkeit',2,"~Humidity.F"),
 								array('rssi','RSSI',0,0),        
                             
                                     );
@@ -257,6 +281,13 @@
 						$value = strtotime($value);	
 						$profil = $key[3];
 						}	
+					
+					if ( $key[2] == 2 )
+						{
+						$value = floatval($value);	
+						$profil = $key[3];
+						}	
+
 
 					if ( isset ($key[3]) )
 						$profil = $key[3];
@@ -289,6 +320,7 @@
 			else
 				{
 				// $this->SendDebug(__FUNCTION__, "Nicht gefunden Key: ".$key, 0);
+				// print_r($result);
 				$status = false ;
 				}	
 			}
@@ -299,14 +331,17 @@
 		//******************************************************************************
 		protected function SetValueToVariable($name,$value,$ident,$profil=false)
 			{
-			$this->SendDebug(__FUNCTION__, "Name:" . $name ." Wert:".$value . " Ident: ".$ident." - ".$profil, 0);
+			// $this->SendDebug(__FUNCTION__, "Name:" . $name ." Wert:".$value . " Ident: ".$ident." - ".$profil, 0);
 
 			$VariableID = @IPS_GetObjectIDByIdent ($ident,$this->InstanceID);
-			if ( $VariableID != false )	
-				$this->SendDebug(__FUNCTION__, "Ident OK :" . $VariableID . " Ident: ".$ident, 0);
-			else	
+
+			
+			if ( $VariableID == false )	
+			// 	$this->SendDebug(__FUNCTION__, "Ident OK :" . $VariableID . " Ident: ".$ident, 0);
+			// else	
 				$this->SendDebug(__FUNCTION__, "Ident NOK :" . $VariableID . " Ident: ".$ident, 0);
 			
+
 			$array = IPS_GetVariable ($VariableID);
 			$aktprofil = $array['VariableCustomProfile'];
 			
@@ -466,7 +501,7 @@
 		//******************************************************************************
     	public function SetACMode(string $mode)
     		{
-			$this->SetACState($mode);	
+			$this->SetACState(true,false,false,false,$mode);	
     		}
 
 		//******************************************************************************
@@ -498,7 +533,7 @@
 		//******************************************************************************
 		//	AC 
 		//******************************************************************************
-    	protected function SetACState(bool $status,$Soll=false,$Swing=false,$Fan=false)
+    	protected function SetACState(bool $status,$Soll=false,$Swing=false,$Fan=false,$Mode=false)
 			{
 			if ($status == true )
 				$msg = "AN";
@@ -509,6 +544,11 @@
 		
 			$apikey = $this->GetAPIKey();
 			$deviceID = $this->GetDeviceID();
+
+			if ($Mode == false) {
+                $ModeID = IPS_GetObjectIDByIdent("acStatemode", $this->InstanceID);
+                $Mode   = GetValue($ModeID);
+            }	
 
             if ($Soll == false) {
                 $SollID = IPS_GetObjectIDByIdent("acStatetargetTemperature", $this->InstanceID);
@@ -532,7 +572,7 @@
 								array( "acState" => 
 										array( 
 												'on'=> $status,
-										 		'mode'=> "auto",
+										 		'mode'=> $Mode,
 												'fanLevel' => $Fan,
 												"targetTemperature" => $Soll,
 												"temperatureUnit" => "C",
@@ -607,6 +647,112 @@
 			curl_close($curl);
 			return $output;
 			}
+
+		
+		//******************************************************************************
+		//	
+		//******************************************************************************
+		protected function GetDevicesFormular()
+			{
+			
+			$AllDevices	= $this->ReadAttributeString("AllDevices");
+
+			$form = '{ "caption": "No Device", "value": "" }';
+
+
+			$result = json_decode($AllDevices,true);
+
+			if ( isset($result['result']))
+				$result = $result['result'];
+			else
+				return $form;
+
+			foreach($result as $r )
+				{
+				if ( isset($r['id']))	
+					$this->SendDebug(__FUNCTION__,"Geraete ID : " .$r['id'],0);
+
+					$form = $form . ',{ "caption": "'.$r['id'].'", "value": "'.$r['id'].'" }';
+
+				}
+			
+
+
+
+			// $form = '';
+			return $form;
+
+
+			}
+
+		//******************************************************************************
+		//	Konfigurationsformular dynamisch erstellen
+		//******************************************************************************
+		public function GetConfigurationForm() 
+			{
+				$form = '
+				
+
+				{
+					"elements":
+					[
+				  
+					  { "type": "Label"             , "label":  "####### Sensibo 1.0 #######" },
+					  
+					  
+				  
+					  { "type": "ValidationTextBox", "name": "APIKey", "caption": "API Key" },
+					  
+					  
+
+
+					  { "type": "Select", "name": "GeraeteID", "caption": "Geraete ID",
+						"options": 	[
+
+									'.
+									$this->GetDevicesFormular()
+									.'
+
+									]
+					},
+				  
+					  { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" }
+				  
+				  
+					],
+					
+					"actions":
+					[  
+					  
+					  { "type": "Button", "label": "Update Data",                 "onClick": "SSB_Update($id);" },
+					  { "type": "Button", "label": "Update Devices",                 "onClick": "SSB_UpdateDevices($id);" }
+					  
+				  
+					],
+				  
+				  
+					"status":
+					  [
+						  { "code": 101, "icon": "active", "caption": "Sensibo wird erstellt..." },
+						  { "code": 102, "icon": "active", "caption": "Sensibo ist aktiv" },
+						
+						  { "code": 202, "icon": "error",  "caption": "API Key falsch" },
+						  { "code": 203, "icon": "error",  "caption": "Geraete ID falsch" }
+				  
+					  ]
+				  
+				  
+				  
+				  }
+				
+				
+				
+				';
+
+                return $form;
+            }
+
+
 
 
     	}
