@@ -39,6 +39,8 @@
 		public function ApplyChanges() 
 			{
 
+			$this->RegisterAllProfile();
+
 			$this->GetConfigurationForm();
 
         	//Timer stellen
@@ -50,6 +52,181 @@
 			// Diese Zeile nicht löschen
             parent::ApplyChanges();
         	}
+
+	//******************************************************************************
+	// Register alle Profile
+	//******************************************************************************
+	protected function RegisterAllProfile()
+		{
+			
+
+		$this->RegisterProfile(1,"Sensibo.Sekunden"  	,"Clock"  		,""," Sekunden");
+		$this->RegisterProfile(1,"Sensibo.RSSI"  		,"Intensity"  	,""," dBm");
+
+		$this->RegisterProfile(2,"Sensibo.Solltemperatur"  	,"Temperature"  ,""," °C",15,30,1);
+
+		$this->RegisterProfileEinAus("Sensibo.EinAus", "Power", "", "", Array(
+			Array(0, "Aus",  	"", 0x0000FF),
+			Array(1, "Ein",   	"", 0x00FF00)
+			));
+	 
+		$this->RegisterProfileInteger("Sensibo.Swing", "", "", "", Array(
+				Array(0, "gestoppt"			,  "",0),
+				Array(1, "voller Bereich"	,  "",0)
+				
+				));
+
+		$this->RegisterProfileInteger("Sensibo.Fanlevel", "", "", "", Array(
+				Array(0, "leise"		,  	"Ventilation",0),
+				Array(1, "niedrig"		,   "Ventilation",0),
+				Array(2, "mittel"		,   "Ventilation",0),
+				Array(3, "hoch"			,   "Ventilation",0),
+				Array(4, "auto"			,   "Ventilation",0),
+				Array(5, "stark"		,   "Ventilation",0)					
+				));
+
+		$this->RegisterProfileInteger("Sensibo.Modus", "", "", "", Array(
+				Array(0, "Kuehlung"		,  	"Climate",0),
+				Array(1, "Heizung"		,   "Climate",0),
+				Array(2, "Ventilator"	,   "Climate",0),
+				Array(3, "Trockner"		,   "Climate",0),
+				Array(4, "Automatik"	,   "Climate",0)
+							
+				));
+						
+		}
+
+	//**************************************************************************
+	// 
+	//**************************************************************************    
+	protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $Associations) 
+		{
+		if ( sizeof($Associations) === 0 )
+			{
+			$MinValue = 0;
+			$MaxValue = 0;
+			}
+		else 
+			{
+			$MinValue = $Associations[0][0];
+			$MaxValue = $Associations[sizeof($Associations)-1][0];
+			}
+
+		$this->RegisterProfile(1,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+
+		foreach($Associations as $Association) 
+			{
+			IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+			}
+
+		}
+
+
+	//**************************************************************************
+	//
+	//**************************************************************************    
+	protected function RegisterProfileEinAus($Name, $Icon, $Prefix, $Suffix, $Associations) 
+		{
+		if ( sizeof($Associations) === 0 )
+			{
+			$MinValue = 0;
+			$MaxValue = 0;
+			}
+		else 
+			{
+			$MinValue = $Associations[0][0];
+			$MaxValue = $Associations[sizeof($Associations)-1][0];
+			}
+
+		$this->RegisterProfile(0,$Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, 0);
+
+		foreach($Associations as $Association) 
+			{
+			IPS_SetVariableProfileAssociation($Name, $Association[0], $Association[1], $Association[2], $Association[3]);
+			}
+
+		}
+
+
+   		//**************************************************************************
+		// 
+		//**************************************************************************
+		public function RequestAction($Ident, $Value) 
+			{
+
+			$this->SendDebug(__FUNCTION__,$Ident,0);
+			
+			switch($Ident) 
+					{
+					case "acStateon":
+						
+			 
+						//Neuen Wert in die Statusvariable schreiben
+						SetValue($this->GetIDForIdent($Ident), $Value);
+
+						if ( $Value == true )
+							$state = "on";
+						else
+							$state = "off";
+						$this->SetACOn($state);
+						break;
+					
+					case "acStatemode":
+						
+			 
+						//Neuen Wert in die Statusvariable schreiben
+						SetValue($this->GetIDForIdent($Ident), $Value);
+	
+						$state = $this->DecodeMode($Value,true);
+		
+						$this->SetACMode($state);
+						
+						break;
+
+					case "acStatefanLevel":
+						
+			 
+							//Neuen Wert in die Statusvariable schreiben
+							SetValue($this->GetIDForIdent($Ident), $Value);
+		
+							$state = $this->DecodeMode($Value,true);
+			
+							$this->SetACFanLevel($state);
+							
+							break;
+
+					case "acStateswing":
+						
+			 
+							//Neuen Wert in die Statusvariable schreiben
+							SetValue($this->GetIDForIdent($Ident), $Value);
+			
+							$state = $this->DecodeSwing($Value,true);
+				
+							$this->SetACFanLevel($state);
+								
+							break;
+			
+
+					case "acStatetargetTemperature":
+						
+			 
+						//Neuen Wert in die Statusvariable schreiben
+						SetValue($this->GetIDForIdent($Ident), $Value);
+						$this->SetACTemperatur($Value);
+
+						break;
+
+
+
+
+						
+
+					default:
+					$this->SendDebug(__FUNCTION__,"Ident unbekannt : " . $Ident,0);
+					}
+			 
+			}
 
    		//**************************************************************************
 		// 
@@ -194,12 +371,12 @@
 				{
                 $level = $result['acState'];
 
-                $keys = array( 	array('on','AC Status',0,"~Switch"),
-                                array('fanLevel','Luefter Level',0),
+                $keys = array( 	array('on','AC Status',0,"Sensibo.EinAus"),
+                                array('fanLevel','Luefter Level',3,"Sensibo.Fanlevel"),
                                 array("temperatureUnit",'Temperatureinheit',0),
-                                array("targetTemperature",'Soll Temperatur',2,"~Temperature"),
-                                array("mode",'Modus',0),
-                                array("swing",'Swing',0),
+                                array("targetTemperature",'Soll Temperatur',2,"Sensibo.Solltemperatur"),
+                                array("mode",'Modus',3,"Sensibo.Modus"),
+								array("swing",'Swing',3,"Sensibo.Swing"),
                             
                                     );
                 $this->DoKeys($level, $keys, "acState");
@@ -211,7 +388,7 @@
 
                 $keys = array( 	array('temperature','Ist Temperatur',2,"~Temperature"),
 								array('humidity','Ist Luftfeuchtigkeit',2,"~Humidity.F"),
-								array('rssi','RSSI',0,0),        
+								array('rssi','RSSI',3,"Sensibo.RSSI"),        
                             
                                     );
                 $this->DoKeys($level, $keys, "measurements");
@@ -247,8 +424,8 @@
 				{
                 $level = $result['connectionStatus']['lastSeen'];
 
-                $keys = array( 	array('secondsAgo','Letzte Verbindung seit Sekunden',0),
-                            array('time','Letzte Verbindung',1,"~UnixTimestamp"),
+                $keys = array( 	array('secondsAgo','Letzte Verbindung seit Sekunden',3,"Sensibo.Sekunden"),
+                            	array('time','Letzte Verbindung',1,"~UnixTimestamp"),
                             );
 
                 $this->DoKeys($level, $keys, "connectionStatus");
@@ -262,6 +439,8 @@
 		// Auswertung der Keys
 		// Keys : 	0
 		//			1	Timestamp
+		//          2   Float
+		//          3   Integer 
 		//******************************************************************************
 		protected function DoKeys($result,$keys,$prefix)
 			{
@@ -270,11 +449,83 @@
 				{
 				$value = $this->LookingForkey($result,$key[0],$status);
 
+
 				if ( $status == true )
 					{
 					$profil = "";	
 					$ident = $prefix.$key[0];
 					$name = $key[1];
+
+
+					// $value von String in Integer wandeln
+					if ($ident == "acStateswing" )
+						{
+						if ( $value == "stopped" )
+							$value = 0;
+						else
+							{
+							if ( $value == "rangeFull" )
+								$value = 1;
+							else
+								$this->SendDebug(__FUNCTION__, "acStateswing Fehler: ".$value, 0);			
+							}		
+
+						}	
+
+					if ($ident == "acStatefanLevel" )
+						{
+									
+						$value1 = -1;
+
+						if ( $value == "quiet" )
+							$value1 = 0;
+						if ( $value == "low" )
+							$value1 = 1;
+						if ( $value == "medium" )
+							$value1 = 2;
+						if ( $value == "high" )
+							$value1 = 3;
+						if ( $value == "auto" )
+							$value1 = 4;
+						if ( $value == "strong" )
+							$value1 = 5;
+						
+						if ( $value1 == -1 )	
+							$this->SendDebug(__FUNCTION__, "acStatefanLevel Fehler: ".$value, 0);			
+						else
+							$value = $value1;
+
+									
+
+						}	
+
+					if ($ident == "acStatemode" )
+						{
+						//$this->SendDebug(__FUNCTION__, "acStatemode Fehler: ".$value, 0);			
+									
+						$value1 = -1;
+
+						if ( $value == "cool" )
+							$value1 = 0;
+						if ( $value == "heat" )
+							$value1 = 1;
+						if ( $value == "fan" )
+							$value1 = 2;
+						if ( $value == "dry" )
+							$value1 = 3;
+						if ( $value == "auto" )
+							$value1 = 4;
+						
+						if ( $value1 == -1 )	
+							$this->SendDebug(__FUNCTION__, "acStatemode Fehler: ".$value, 0);			
+						else
+							$value = $value1;
+
+						//$this->SendDebug(__FUNCTION__, "acStatemode Fehler: ".$value, 0);			
+									
+
+						}	
+
 
 					if ( $key[2] == 1 )
 						{
@@ -288,9 +539,18 @@
 						$profil = $key[3];
 						}	
 
+					if ( $key[2] == 3 )
+						{
+						$value = intval($value);	
+						$profil = $key[3];
+						}	
+	
 
 					if ( isset ($key[3]) )
 						$profil = $key[3];
+
+					
+
 
 					$this->SetValueToVariable($name,$value,$ident,$profil);	
 					}	
@@ -335,7 +595,41 @@
 
 			$VariableID = @IPS_GetObjectIDByIdent ($ident,$this->InstanceID);
 
+			if ($ident == "acStateon") 
+				{
+				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				IPS_SetVariableCustomAction($VariableID,0);
+				$this->EnableAction($ident);
+				}
+
+			if ($ident == "acStatetargetTemperature") 
+				{
+				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				IPS_SetVariableCustomAction($VariableID,0);
+				$this->EnableAction($ident);
+				}
 			
+			if ($ident == "acStatemode") 
+				{
+				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				IPS_SetVariableCustomAction($VariableID,0);
+				$this->EnableAction($ident);
+				}	
+
+			if ($ident == "acStatefanLevel") 
+				{
+				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				IPS_SetVariableCustomAction($VariableID,0);
+				$this->EnableAction($ident);
+				}	
+
+			if ($ident == "acStateswing") 
+				{
+				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				IPS_SetVariableCustomAction($VariableID,0);
+				$this->EnableAction($ident);
+				}	
+				
 			if ( $VariableID == false )	
 			// 	$this->SendDebug(__FUNCTION__, "Ident OK :" . $VariableID . " Ident: ".$ident, 0);
 			// else	
@@ -349,7 +643,11 @@
 				{ 
 				if ( $VariableID == false )
 					$VariableID = $this->RegisterVariableString($ident, $name);
-				SetValue($VariableID,$value);
+
+				$old = GetValue($VariableID);
+				if ( $old != $value )	
+					SetValue($VariableID,$value);
+				
 				}
 				
 			if (is_bool($value) == true) 
@@ -369,9 +667,14 @@
                         	}
                     	}
 					
+					// $this->SendDebug(__FUNCTION__, "Custom Action :" , 0);	
+					 // $this->EnableAction($ident);
+					// IPS_SetVariableCustomAction($VariableID,0);		
+
 					}	
 
-
+				$old = GetValue($VariableID);
+				if ( $old != $value )	
 					SetValue($VariableID,$value);
 				}	
 
@@ -393,8 +696,9 @@
                         	}
                    		}	
 					}	
-
-				SetValue($VariableID,$value);
+				$old = GetValue($VariableID);
+				if ( $old != $value )	
+					SetValue($VariableID,$value);
 				}
 
 
@@ -417,7 +721,9 @@
                    		}	
 					}	
 
-				SetValue($VariableID,$value);
+				$old = GetValue($VariableID);
+				if ( $old != $value )	
+					SetValue($VariableID,$value);
 				}		
 
 
@@ -488,6 +794,9 @@
 		//******************************************************************************
     	public function SetACOn(string $state)
     		{
+
+			$this->SendDebug(__FUNCTION__,$state,0);
+
 				if ( $state == 'on' )
 					$this->SetACState(true);
 				if ( $state == 'off' )
@@ -501,6 +810,9 @@
 		//******************************************************************************
     	public function SetACMode(string $mode)
     		{
+
+			$mode = $this->DecodeMode($mode,false);	
+			$this->SendDebug(__FUNCTION__,": ".$mode ,0);	
 			$this->SetACState(true,false,false,false,$mode);	
     		}
 
@@ -510,6 +822,7 @@
 		//******************************************************************************
     	public function SetACFanLevel(string $level)
     		{
+			$level = $this->DecodeFanlevel($level,false);	
 			$this->SetACState(true,false,false,$level);	
     		}
 
@@ -519,6 +832,7 @@
 		//******************************************************************************
     	public function SetACSwing(string $mode)
     		{
+			$mode = $this->DecodeSwing($mode,true);	
 			$this->SetACState(true,false,$mode);	
     		}
 
@@ -535,12 +849,18 @@
 		//******************************************************************************
     	protected function SetACState(bool $status,$Soll=false,$Swing=false,$Fan=false,$Mode=false)
 			{
-			if ($status == true )
-				$msg = "AN";
+			
+            if ($status == true) {
+                $msg = "AN";
+                // $status = "on";
+            }
 			else
-				$msg = "AUS";
+				{
+                    $msg = "AUS";
+                    // $status = "off";
+                }		
 
-			$this->SendDebug(__FUNCTION__,": ".$msg ,0);
+			$this->SendDebug(__FUNCTION__,": ".$msg ." - " . $Mode,0);
 		
 			$apikey = $this->GetAPIKey();
 			$deviceID = $this->GetDeviceID();
@@ -568,6 +888,18 @@
             }	
 			$this->SendDebug(__FUNCTION__,"Fan : " .$Fan,0); 	
 
+			
+			$Mode = $this->DecodeMode($Mode,true);	
+				 
+			$Fan = $this->DecodeFanlevel($Fan,true);	
+
+
+			if ( $Swing == 0 )
+				$Swing1 = "stopped";
+			if ( $Swing == 1 )
+				$Swing1 = "rangeFull";
+			$Swing = $Swing1;
+			
 			$postfields = json_encode(
 								array( "acState" => 
 										array( 
@@ -598,6 +930,145 @@
 			$this->Update();
 
         	}
+
+	protected function DecodeFanlevel($value,$modus)
+			{
+			
+			$return = false;
+	
+			if ( $modus == true )	// wandele Integer in Namen
+				{
+				if ( $value == 0 )
+					$return = "quiet";
+				if ( $value == 1 )
+					$return = "low";
+				if ( $value == 2 )
+					$return = "medium";
+				if ( $value == 3 )
+					$return = "high";
+				if ( $value == 4 )
+					$return = "auto";
+				if ( $value == 5 )
+					$return = "strong";
+	
+				}	
+			else					// wandele Namen in Integer
+				{
+				if ( $value == "quiet" )
+					$return = 0;
+				if ( $value == "low" )
+					$return = 1;
+				if ( $value == "medium" )
+					$return = 2;
+				if ( $value == "high" )
+					$return = 3;
+				if ( $value == "auto" )
+					$return = 4;
+				if ( $value == "strong" )
+					$return = 5;
+	
+				}	
+	
+			return $return;	
+	
+			}		
+
+	protected function DecodeSwing($value,$modus)
+			{
+			
+			$return = false;
+	
+			if ( $modus == true )	// wandele Integer in Namen
+				{
+				if ( $value == 0 )
+					$return = "stopped";
+				if ( $value == 1 )
+					$return = "rangeFull";
+				
+				}	
+			else					// wandele Namen in Integer
+				{
+				if ( $value == "stopped" )
+					$return = 0;
+				if ( $value == "rangeFull" )
+					$return = 1;
+	
+				}	
+	
+			return $return;	
+	
+			}		
+				
+
+	protected function DecodeMode($value,$modus)
+		{
+		
+		$return = false;
+
+		if ( $modus == true )	// wandele Integer in Namen
+			{
+			if ( $value == 0 )
+				$return = "cool";
+			if ( $value == 1 )
+				$return = "heat";
+			if ( $value == 2 )
+				$return = "fan";
+			if ( $value == 3 )
+				$return = "dry";
+			if ( $value == 4 )
+				$return = "auto";
+
+			}	
+		else					// wandele Namen in Integer
+			{
+			if ( $value == "cool" )
+				$return = 0;
+			if ( $value == "heat" )
+				$return = 1;
+			if ( $value == "fan" )
+				$return = 2;
+			if ( $value == "dry" )
+				$return = 3;
+			if ( $value == "auto" )
+				$return = 4;
+
+			}	
+
+		return $return;	
+
+		}		
+
+	//**************************************************************************
+	//  0 - Bool
+	//  1 - Integer
+	//  2 - Float
+	//  3 - String
+	//**************************************************************************    
+	protected function RegisterProfile($Typ, $Name, $Icon, $Prefix, $Suffix, $MinValue=false, $MaxValue=false, $StepSize=false, $Digits=0) 
+		{
+		if(!IPS_VariableProfileExists($Name)) 
+			{
+			IPS_CreateVariableProfile($Name, $Typ);  
+			} 
+		else 
+			{
+			$profile = IPS_GetVariableProfile($Name);
+			if($profile['ProfileType'] != $Typ)
+				{
+				IPS_Logmessage("Sensibomodul","Profil falsch : " . $Name);
+				//throw new Exception("Variable profile type does not match for profile ".$Name);
+
+				}
+			}
+
+		IPS_SetVariableProfileIcon($Name, $Icon);
+		IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+		IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
+ 
+		if ( $Typ == 2 )
+			IPS_SetVariableProfileDigits($Name, $Digits);
+		}
+
 
 
 
