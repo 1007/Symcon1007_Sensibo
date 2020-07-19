@@ -840,7 +840,7 @@
 		//******************************************************************************
     	public function SetACSwing(string $mode)
     		{
-			$mode = $this->DecodeSwing($mode,true);	
+			$mode = $this->DecodeSwing($mode,false);	
 			$this->SetACState(true,false,$mode);	
     		}
 
