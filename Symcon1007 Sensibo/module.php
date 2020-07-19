@@ -598,36 +598,36 @@
 			if ($ident == "acStateon") 
 				{
 				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
-				IPS_SetVariableCustomAction($VariableID,0);
-				$this->EnableAction($ident);
+				@IPS_SetVariableCustomAction($VariableID,0);
+				@$this->EnableAction($ident);
 				}
 
 			if ($ident == "acStatetargetTemperature") 
 				{
 				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
-				IPS_SetVariableCustomAction($VariableID,0);
-				$this->EnableAction($ident);
+				@IPS_SetVariableCustomAction($VariableID,0);
+				@$this->EnableAction($ident);
 				}
 			
 			if ($ident == "acStatemode") 
 				{
 				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
-				IPS_SetVariableCustomAction($VariableID,0);
-				$this->EnableAction($ident);
+				@IPS_SetVariableCustomAction($VariableID,0);
+				@$this->EnableAction($ident);
 				}	
 
 			if ($ident == "acStatefanLevel") 
 				{
 				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
-				IPS_SetVariableCustomAction($VariableID,0);
-				$this->EnableAction($ident);
+				@IPS_SetVariableCustomAction($VariableID,0);
+				@$this->EnableAction($ident);
 				}	
 
 			if ($ident == "acStateswing") 
 				{
 				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
-				IPS_SetVariableCustomAction($VariableID,0);
-				$this->EnableAction($ident);
+				@IPS_SetVariableCustomAction($VariableID,0);
+				@$this->EnableAction($ident);
 				}	
 				
 			if ( $VariableID == false )	
@@ -636,9 +636,10 @@
 				$this->SendDebug(__FUNCTION__, "Ident NOK :" . $VariableID . " Ident: ".$ident, 0);
 			
 
-			$array = IPS_GetVariable ($VariableID);
-			$aktprofil = $array['VariableCustomProfile'];
+			// $array = @IPS_GetVariable ($VariableID);
+			// $aktprofil = $array['VariableCustomProfile'];
 			
+
 			if (is_string($value) == true) 
 				{ 
 				if ( $VariableID == false )
@@ -657,6 +658,9 @@
 
 				if ( $profil != false )
 					{	
+					$array = @IPS_GetVariable ($VariableID);
+					$aktprofil = $array['VariableCustomProfile'];
+							
 					if ($profil != $aktprofil) 
 						{
                         $this->SendDebug(__FUNCTION__, "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
@@ -685,7 +689,9 @@
 
 				if ( $profil != false )
 					{
-					
+					$array = @IPS_GetVariable ($VariableID);
+					$aktprofil = $array['VariableCustomProfile'];
+						
 					if ($profil != $aktprofil) 
 						{
                         $this->SendDebug(__FUNCTION__, "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
@@ -709,7 +715,9 @@
 
 				if ( $profil != false )
 					{
-					
+					$array = @IPS_GetVariable ($VariableID);
+					$aktprofil = $array['VariableCustomProfile'];
+						
 					if ($profil != $aktprofil) 
 						{
                         $this->SendDebug(__FUNCTION__, "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
