@@ -47,6 +47,8 @@ SSB_SetACSwing($InstanceID, "rangeFull");
 
 SSB_SetACSwing($InstanceID, "stopped");
 
+SSB_SetACFanLevel($InstanceID, "quiet");
+
 SSB_SetACFanLevel($InstanceID, "low");
 
 SSB_SetACFanLevel($InstanceID, "medium");
@@ -54,6 +56,10 @@ SSB_SetACFanLevel($InstanceID, "medium");
 SSB_SetACFanLevel($InstanceID, "high");
 
 SSB_SetACFanLevel($InstanceID, "auto");
+
+SSB_SetACFanLevel($InstanceID, "strong");
+
+SSB_SetACMode($InstanceID, "cool");
 
 SSB_SetACMode($InstanceID, "heat");
 
