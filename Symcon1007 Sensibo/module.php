@@ -231,6 +231,24 @@
    		//**************************************************************************
 		// 
 		//**************************************************************************
+		public function GetClimateReact()
+			{
+                $apikey = $this->GetAPIKey();
+
+				$deviceID = $this->GetDeviceID();
+
+                $url = "https://home.sensibo.com/api/v2/pods/".$deviceID."/smartmode/?apiKey=".$apikey;
+
+                $this->SendDebug(__FUNCTION__, $url, 0);
+
+                $resultcurl = $this->DoCurl($url);
+
+                $this->SendDebug(__FUNCTION__, "Result : " .$resultcurl, 0);
+            }
+
+   		//**************************************************************************
+		// 
+		//**************************************************************************
 		public function GetAllDevices()
 			{
 			
@@ -301,6 +319,8 @@
 				return;
 				}
 
+
+
 			$url = "https://home.sensibo.com/api/v2/pods/".$deviceID."?fields=*&apiKey=".$apikey;
 
 			$this->SendDebug(__FUNCTION__,$url,0);
@@ -325,6 +345,8 @@
 				
 			$this->DoDatas($result);	
 				
+			// $this->GetClimateReact();
+
 			}
 
 		//**************************************************************************
@@ -820,7 +842,7 @@
     		{
 
 			$mode = $this->DecodeMode($mode,false);	
-			$this->SendDebug(__FUNCTION__,": ".$mode ,0);	
+			// $this->SendDebug(__FUNCTION__,": ".$mode ,0);	
 			$this->SetACState(true,false,false,false,$mode);	
     		}
 
@@ -858,13 +880,14 @@
     	protected function SetACState(bool $status,$Soll=false,$Swing=false,$Fan=false,$Mode=false)
 			{
 			
-            if ($status == true) {
-                $msg = "AN";
+			if ($status == true) 
+				{
+                $msg = "An";
                 // $status = "on";
-            }
+            	}
 			else
 				{
-                    $msg = "AUS";
+                    $msg = "Aus";
                     // $status = "off";
                 }		
 
