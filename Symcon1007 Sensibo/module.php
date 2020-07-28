@@ -59,6 +59,7 @@
 	protected function RegisterAllProfile()
 		{
 			
+		$this->SendDebug(__FUNCTION__,"",0);
 
 		$this->RegisterProfile(1,"Sensibo.Sekunden"  	,"Clock"  		,""," Sekunden");
 		$this->RegisterProfile(1,"Sensibo.RSSI"  		,"Intensity"  	,""," dBm");
@@ -83,6 +84,13 @@
 				Array(3, "hoch"			,   "Ventilation",0),
 				Array(4, "auto"			,   "Ventilation",0),
 				Array(5, "stark"		,   "Ventilation",0)					
+				));
+
+		$this->RegisterProfileInteger("Sensibo.HomekitModus", "", "", "", Array(
+				Array(0, "Aus"			,  	"Climate",0),
+				Array(1, "Heizung"		,   "Climate",0),
+				Array(2, "Kuehlung"		,   "Climate",0),
+				Array(3, "Automatik"	,   "Climate",0)							
 				));
 
 		$this->RegisterProfileInteger("Sensibo.Modus", "", "", "", Array(
@@ -162,7 +170,7 @@
 						
 			 
 						//Neuen Wert in die Statusvariable schreiben
-						SetValue($this->GetIDForIdent($Ident), $Value);
+						$this->SetValue($Ident, $Value);
 
 						if ( $Value == true )
 							$state = "on";
@@ -175,7 +183,7 @@
 						
 			 
 						//Neuen Wert in die Statusvariable schreiben
-						SetValue($this->GetIDForIdent($Ident), $Value);
+						$this->SetValue($Ident, $Value);
 	
 						$state = $this->DecodeMode($Value,true);
 		
@@ -187,7 +195,7 @@
 						
 			 
 							//Neuen Wert in die Statusvariable schreiben
-							SetValue($this->GetIDForIdent($Ident), $Value);
+							$this->SetValue($Ident, $Value);
 		
 							$state = $this->DecodeMode($Value,true);
 			
@@ -199,7 +207,7 @@
 						
 			 
 							//Neuen Wert in die Statusvariable schreiben
-							SetValue($this->GetIDForIdent($Ident), $Value);
+							$this->SetValue($Ident, $Value);
 			
 							$state = $this->DecodeSwing($Value,true);
 				
@@ -212,15 +220,11 @@
 						
 			 
 						//Neuen Wert in die Statusvariable schreiben
-						SetValue($this->GetIDForIdent($Ident), $Value);
+						$this->SetValue($Ident, $Value);
 						$this->SetACTemperatur($Value);
 
 						break;
 
-
-
-
-						
 
 					default:
 					$this->SendDebug(__FUNCTION__,"Ident unbekannt : " . $Ident,0);
@@ -307,8 +311,6 @@
 	
 			$this->GetAllDevices();	
 
-			
-
 			$apikey = $this->GetAPIKey();
 
 			$deviceID = $this->GetDeviceID();
@@ -318,8 +320,6 @@
 				$this->SendDebug(__FUNCTION__,"Keine Device ID",0);
 				return;
 				}
-
-
 
 			$url = "https://home.sensibo.com/api/v2/pods/".$deviceID."?fields=*&apiKey=".$apikey;
 
@@ -383,7 +383,7 @@
 								   
 							array("firmwareType","Firmware Type",0),
 							array("productModel","Modell",0),
-							array("temperatureUnit","Temperatureinheit",0),
+							// array("temperatureUnit","Temperatureinheit",0),
 							array("remoteFlavor","Fernbedienung",0),
 						);
 			$this->DoKeys($level,$keys,"");
@@ -396,12 +396,13 @@
                 $keys = array( 	array('on','AC Status',0,"Sensibo.EinAus"),
                                 array('fanLevel','Luefter Level',3,"Sensibo.Fanlevel"),
                                 array("temperatureUnit",'Temperatureinheit',0),
-                                array("targetTemperature",'Soll Temperatur',2,"Sensibo.Solltemperatur"),
+                                array("targetTemperature",'Soll Temperatur',2,false),
                                 array("mode",'Modus',3,"Sensibo.Modus"),
 								array("swing",'Swing',3,"Sensibo.Swing"),
                             
                                     );
-                $this->DoKeys($level, $keys, "acState");
+				$this->DoKeys($level, $keys, "acState");
+				
 				}
 				
 			if (isset($result['measurements']) == true) 
@@ -471,6 +472,13 @@
 				{
 				$value = $this->LookingForkey($result,$key[0],$status);
 
+				if ($key[0] == "temperatureUnit" )
+					{
+					$this->SetTemperaturUnit($value);
+					continue;	
+					}
+
+
 
 				if ( $status == true )
 					{
@@ -479,6 +487,8 @@
 					$name = $key[1];
 
 
+				
+						
 					// $value von String in Integer wandeln
 					if ($ident == "acStateswing" )
 						{
@@ -615,7 +625,8 @@
 			{
 			// $this->SendDebug(__FUNCTION__, "Name:" . $name ." Wert:".$value . " Ident: ".$ident." - ".$profil, 0);
 
-			$VariableID = @IPS_GetObjectIDByIdent ($ident,$this->InstanceID);
+			//$VariableID = @IPS_GetObjectIDByIdent ($ident,$this->InstanceID);
+			$VariableID = @$this->GetIDForIdent($ident);
 
 			if ($ident == "acStateon") 
 				{
@@ -653,26 +664,25 @@
 				}	
 				
 			if ( $VariableID == false )	
-			// 	$this->SendDebug(__FUNCTION__, "Ident OK :" . $VariableID . " Ident: ".$ident, 0);
-			// else	
 				$this->SendDebug(__FUNCTION__, "Ident NOK :" . $VariableID . " Ident: ".$ident, 0);
 			
 
 			// $array = @IPS_GetVariable ($VariableID);
 			// $aktprofil = $array['VariableCustomProfile'];
 			
-
+			// Variable ist Typ String
 			if (is_string($value) == true) 
 				{ 
 				if ( $VariableID == false )
 					$VariableID = $this->RegisterVariableString($ident, $name);
-
-				$old = GetValue($VariableID);
-				if ( $old != $value )	
-					SetValue($VariableID,$value);
 				
+				$old = $this->GetValue($ident);
+				if ( $old != $value )	
+					$this->SetValue($ident,$value);
+	
 				}
 				
+			// Variable ist Typ Bool
 			if (is_bool($value) == true) 
 				{
 				if ( $VariableID == false )
@@ -699,11 +709,12 @@
 
 					}	
 
-				$old = GetValue($VariableID);
+				$old = $this->GetValue($ident);
 				if ( $old != $value )	
-					SetValue($VariableID,$value);
+					$this->SetValue($ident,$value);
 				}	
 
+			// Variable ist Typ Integer	
 			if (is_integer($value) == true) 
 				{ 
 				if ( $VariableID == false )
@@ -723,14 +734,17 @@
                             $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
                         	}
                    		}	
-					}	
-				$old = GetValue($VariableID);
+					}
+
+				$old = $this->GetValue($ident);
 				if ( $old != $value )	
-					SetValue($VariableID,$value);
+					$this->SetValue($ident,$value);
+
 				}
 
 
-				if (is_float($value) == true) 
+			// Variable ist Typ Float
+			if (is_float($value) == true) 
 				{ 
 				if ( $VariableID == false )
 					$VariableID = $this->RegisterVariableFloat($ident, $name);
@@ -751,13 +765,68 @@
                    		}	
 					}	
 
-				$old = GetValue($VariableID);
+				$old = $this->GetValue($ident);
 				if ( $old != $value )	
-					SetValue($VariableID,$value);
+					$this->SetValue($ident,$value);
 				}		
 
 
             }	
+
+		//**************************************************************************
+		//
+		//**************************************************************************
+		protected function SetTemperaturUnit($unit)
+			{
+
+			// $this->SendDebug(__FUNCTION__, "Temperatureinheit :" . $unit , 0);
+
+			if ( $unit != 'C' and $unit != 'F' )
+				{
+				$this->SendDebug(__FUNCTION__, "Temperatureinheit unbekannt :" . $unit , 0);
+                return;
+				}	
+
+
+			$ident = "acStatetargetTemperature";	
+			$VariableID = @$this->GetIDForIdent($ident);
+
+
+			$array = IPS_GetVariable ($VariableID);	
+			$aktProfil = ($array['VariableCustomProfile']);	
+			
+
+
+			if ( $VariableID == true )
+				{
+				if ( $unit == "C" )
+					{
+					$profil = "~Temperature";
+                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__, "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
+                        $status = IPS_SetVariableCustomProfile($VariableID, $profil);
+                        if ($status == false) {
+                            $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
+                        }
+                    }	
+					}
+				if ( $unit == "F" )
+					{
+					$profil = "~Temperature.Fahrenheit";
+                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__, "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
+                        $status = IPS_SetVariableCustomProfile($VariableID, $profil);
+                        if ($status == false) {
+                            $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
+                        }
+                    }		
+					}
+
+				}	
+
+			// $ident = "measurementstemperature";	
+			// $VariableID = @$this->GetIDForIdent($ident);
+
+
+			}	
 
 		//**************************************************************************
 		// DeviceID von Instanz zurueck geben
@@ -767,8 +836,7 @@
 
 			$id = $this->ReadPropertyString("GeraeteID") ;
 			return $id;	
-
-				
+			
 			}
 
 			
@@ -887,39 +955,41 @@
             	}
 			else
 				{
-                    $msg = "Aus";
-                    // $status = "off";
+                $msg = "Aus";
+                // $status = "off";
                 }		
 
-			$this->SendDebug(__FUNCTION__,": ".$msg ." - " . $Mode,0);
+			$this->SendDebug(__FUNCTION__,"".$msg ." : " . $Mode,0);
 		
 			$apikey = $this->GetAPIKey();
 			$deviceID = $this->GetDeviceID();
 
-			if ($Mode == false) {
-                $ModeID = IPS_GetObjectIDByIdent("acStatemode", $this->InstanceID);
-                $Mode   = GetValue($ModeID);
-            }	
+			if ($Mode == false) 
+				{
+				$Mode   = $this->GetValue("acStatemode");
+				}	
 
-            if ($Soll == false) {
-                $SollID = IPS_GetObjectIDByIdent("acStatetargetTemperature", $this->InstanceID);
-                $Soll   = GetValue($SollID);
-            }	
+			if ($Soll == false) 
+				{
+				$Soll   = $this->GetValue("acStatetargetTemperature");				
+				}
+					
 			$this->SendDebug(__FUNCTION__,"Soll : " .$Soll,0); 	
 
-			if ($Swing == false) {
-                $SwingID = IPS_GetObjectIDByIdent("acStateswing", $this->InstanceID);
-                $Swing   = GetValue($SwingID);
-            }	
+			if ($Swing == false) 
+				{
+				$Swing   = $this->GetValue("acStateswing");
+				}
+					
 			$this->SendDebug(__FUNCTION__,"Swing : " .$Swing,0); 	
 
-			if ($Fan == false) {
-                $FanID = IPS_GetObjectIDByIdent("acStatefanLevel", $this->InstanceID);
-                $Fan   = GetValue($FanID);
-            }	
+			if ($Fan == false) 
+				{
+				$Fan   = $this->GetValue("acStatefanLevel");
+				}
+					
 			$this->SendDebug(__FUNCTION__,"Fan : " .$Fan,0); 	
 
-			
 			$Mode = $this->DecodeMode($Mode,true);	
 				 
 			$Fan = $this->DecodeFanlevel($Fan,true);	
@@ -962,6 +1032,9 @@
 
         	}
 
+	//**************************************************************************
+	//
+	//**************************************************************************
 	protected function DecodeFanlevel($value,$modus)
 			{
 			
@@ -1004,7 +1077,10 @@
 	
 			}		
 
-	protected function DecodeSwing($value,$modus)
+		//**************************************************************************
+		//
+		//**************************************************************************
+		protected function DecodeSwing($value,$modus)
 			{
 			
 			$return = false;
@@ -1031,7 +1107,10 @@
 			}		
 				
 
-	protected function DecodeMode($value,$modus)
+		//**************************************************************************
+		//
+		//**************************************************************************
+		protected function DecodeMode($value,$modus)
 		{
 		
 		$return = false;
