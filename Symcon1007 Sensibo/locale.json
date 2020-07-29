@@ -1,0 +1,20 @@
+{
+    "translations": {
+        "de": {
+            "API Key": "API Schluessel",
+            "Device ID": "Geraete ID",
+            "seconds":  "Sekunden",
+            "Intervall": "Intervall",
+            "Update Data": "Aktualisiere Daten",
+            "Update Devices": "Aktualisiere Geraete",
+            "Sensibo is activ": "Sensibo ist aktiv",
+            "Sensibo is created": "Sensibo wird erstellt",
+            "API Key not valid": "API Schluessel ungueltig",
+            "Device ID not valid": "Gereate ID ungueltig",
+            "No Device": "Kein Geraet",
+
+            "current firmware": "Aktuelle Firmware"
+
+        }
+    }
+}
