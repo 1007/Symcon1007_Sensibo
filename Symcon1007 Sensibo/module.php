@@ -1285,7 +1285,7 @@
 					"elements":
 					[
 				  
-					  { "type": "Label"             , "label":  "Sensibo 1.0#2" },
+					  { "type": "Label"             , "label":  "Sensibo 1.0#3" },
 					  
 					  
 				  

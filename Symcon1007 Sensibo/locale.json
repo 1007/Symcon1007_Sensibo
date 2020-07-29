@@ -13,7 +13,57 @@
             "Device ID not valid": "Gereate ID ungueltig",
             "No Device": "Kein Geraet",
 
-            "current firmware": "Aktuelle Firmware"
+            "current firmware": "Aktuelle Firmware",
+            "available firmware": "Verfuegbare Firmware",
+            "type firmware": "Typ Firmware",
+            "device id": "Geraete ID",
+            "room occupied": "Raum belegt",   
+            "model": "Modell",
+            "geofency on exit" : "Nachricht beim Verlassen eines virtuellen Zaunes",
+            "clean filter notification": "Filterbenachrichtigung", 
+            "remote control": "Fernbedienung",
+            "MAC address": "MAC Adresse",
+
+            "air conditioning state" : "Status Klimaanlage",
+            "temperature unit" : "Temperatureinheit",
+            "target temperature" : "Soll Temperatur",
+            "mode" : "Modus",
+            "swing" : "Schwenk",
+            "last connection" : "Letzte Verbindung",
+            "last connection seconds" : "Letzte Verbindung seit",
+            
+
+            "temperature" : "Ist Temperatur",
+            "humidity" : "Ist Luftfeuchtigkeit",
+            "rssi level" : "Empfangsfeldstaerke",
+            "connection state" : "Verbindung Status",
+            "room name" : "Raumname",
+            "fan level": "Luefterstufe",
+
+
+            " seconds" : " Sekunden",
+            "on" : "Ein",
+            "off" : "Aus",
+            "stopped" : "gestoppt",
+            "full range" : "voller Bereich",
+
+            "quiet" : "leise",
+            "low"   : "niedrig",
+            "medium" : "mittel",
+            "high" : "hoch",
+            "auto" : "auto",
+            "strong" : "stark",
+
+            " dbm" : " dBm",
+
+            "Off" : "Aus",
+            "Heat" : "Heizung",
+            "Cool" : "Kuehlung",
+            "Auto" : "Automatik",
+            "Fan" : "Ventilator",
+            "Dry" : "Trockner"
+
+
 
         }
     }
