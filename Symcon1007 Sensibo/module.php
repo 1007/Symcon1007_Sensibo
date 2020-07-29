@@ -15,7 +15,7 @@
 		{
 
 		//******************************************************************************
-		//	Überschreibt die interne IPS_Create($id) Funktion
+		//	ueberschreibt die interne IPS_Create($id) Funktion
 		//******************************************************************************        
 		public function Create() 
 			{
@@ -27,14 +27,14 @@
 			$this->RegisterTimer("SSB_UpdateTimer", 10, 'SSB_Update($_IPS["TARGET"]);');
 			$this->RegisterAttributeString("AllDevices", "");
 
-            // Diese Zeile nicht löschen.
+            // Diese Zeile nicht loeschen.
             parent::Create();
 
         	}
 
         
    		//**************************************************************************
-		// Überschreibt die intere IPS_ApplyChanges($id) Funktion
+		// ueberschreibt die intere IPS_ApplyChanges($id) Funktion
 		//**************************************************************************        
 		public function ApplyChanges() 
 			{
@@ -49,7 +49,7 @@
 
 			$this->SetStatus(102);
 
-			// Diese Zeile nicht löschen
+			// Diese Zeile nicht loeschen
             parent::ApplyChanges();
         	}
 
@@ -61,44 +61,48 @@
 			
 		$this->SendDebug(__FUNCTION__,"",0);
 
-		$this->RegisterProfile(1,"Sensibo.Sekunden"  	,"Clock"  		,""," Sekunden");
-		$this->RegisterProfile(1,"Sensibo.RSSI"  		,"Intensity"  	,""," dBm");
+		$this->RegisterProfile(1,"Sensibo.Sekunden"  	,"Clock"  		,"",$this->translate(" seconds"));
+		$this->RegisterProfile(1,"Sensibo.RSSI"  		,"Intensity"  	,"",$this->translate(" dbm"));
 
 		$this->RegisterProfile(2,"Sensibo.Solltemperatur"  	,"Temperature"  ,""," °C",15,30,1);
 
 		$this->RegisterProfileEinAus("Sensibo.EinAus", "Power", "", "", Array(
-			Array(0, "Aus",  	"", 0x0000FF),
-			Array(1, "Ein",   	"", 0x00FF00)
+			Array(0, $this->translate("off"),  	"", 0x0000FF),
+			Array(1, $this->translate("on"),   	"", 0x00FF00)
 			));
 	 
 		$this->RegisterProfileInteger("Sensibo.Swing", "", "", "", Array(
-				Array(0, "gestoppt"			,  "",0),
-				Array(1, "voller Bereich"	,  "",0)
+				Array(0, $this->translate("stopped") ,  "",0),
+				Array(1, $this->translate("full range") 	,  "",0)
 				
 				));
 
 		$this->RegisterProfileInteger("Sensibo.Fanlevel", "", "", "", Array(
-				Array(0, "leise"		,  	"Ventilation",0),
-				Array(1, "niedrig"		,   "Ventilation",0),
-				Array(2, "mittel"		,   "Ventilation",0),
-				Array(3, "hoch"			,   "Ventilation",0),
-				Array(4, "auto"			,   "Ventilation",0),
-				Array(5, "stark"		,   "Ventilation",0)					
+				Array(0, $this->translate("quiet")		,  	"Ventilation",0),
+				Array(1, $this->translate("low")		,   "Ventilation",0),
+				Array(2, $this->translate("medium")		,   "Ventilation",0),
+				Array(3, $this->translate("high")		,   "Ventilation",0),
+				Array(4, $this->translate("auto")		,   "Ventilation",0),
+				Array(5, $this->translate("strong")		,   "Ventilation",0)					
 				));
 
+
 		$this->RegisterProfileInteger("Sensibo.HomekitModus", "", "", "", Array(
-				Array(0, "Aus"			,  	"Climate",0),
-				Array(1, "Heizung"		,   "Climate",0),
-				Array(2, "Kuehlung"		,   "Climate",0),
-				Array(3, "Automatik"	,   "Climate",0)							
+				Array(0, $this->translate("Off")	,  	"Climate",0),	// Homekit
+				Array(1, $this->translate("Heat")	,   "Climate",0),	// Homekit
+				Array(2, $this->translate("Cool")	,   "Climate",0),	// Homekit
+				Array(3, $this->translate("Auto")	,   "Climate",0),	// Homekit
+				Array(4, $this->translate("Fan")	,   "Climate",0),
+				Array(5, $this->translate("Dry")	,   "Climate",0),
+											
 				));
 
 		$this->RegisterProfileInteger("Sensibo.Modus", "", "", "", Array(
-				Array(0, "Kuehlung"		,  	"Climate",0),
-				Array(1, "Heizung"		,   "Climate",0),
-				Array(2, "Ventilator"	,   "Climate",0),
-				Array(3, "Trockner"		,   "Climate",0),
-				Array(4, "Automatik"	,   "Climate",0)
+				Array(0, $this->translate("Cool")	,  	"Climate",0),
+				Array(1, $this->translate("Heat")	,   "Climate",0),
+				Array(2, $this->translate("Fan")	,   "Climate",0),
+				Array(3, $this->translate("Dry")	,   "Climate",0),
+				Array(4, $this->translate("Auto")	,   "Climate",0)
 							
 				));
 						
@@ -370,21 +374,19 @@
 					$result = $result['result'];
 			else
 				return false;
-			
+				
 			$level = $result;	
-			$keys = array( 	array('macAddress',"MAC Adresse",0), 
-							array('isGeofenceOnExitEnabled',"Geofency On Exit",0,"~Switch"),
-							array("currentlyAvailableFirmwareVersion","Firmware verfuegbar",0),
-							array("cleanFiltersNotificationEnabled","Filterbenachrichtigung",0,"~Switch"),
-							array("id","Device ID",0),
-							array("firmwareVersion","Aktuelle Firmware",0),
-							array("roomIsOccupied","Raum ist belegt",0,"~Switch"),
-							// array("motionConfig","????",0,"~Switch"),
-								   
-							array("firmwareType","Firmware Type",0),
-							array("productModel","Modell",0),
+			$keys = array( 	array('macAddress',$this->translate("MAC address"),0), 
+							array('isGeofenceOnExitEnabled',$this->translate("geofency on exit"),0,"~Switch"),
+							array("currentlyAvailableFirmwareVersion",$this->translate("available firmware"),0),
+							array("cleanFiltersNotificationEnabled",$this->translate("clean filter notification"),0,"~Switch"),
+							array("id",$this->translate("device id"),0),
+							array("firmwareVersion",$this->translate("current firmware"),0),
+							array("roomIsOccupied",$this->translate("room occupied"),0,"~Switch"),
+							array("firmwareType",$this->translate("type firmware"),0),
+							array("productModel",$this->translate("model"),0),
 							// array("temperatureUnit","Temperatureinheit",0),
-							array("remoteFlavor","Fernbedienung",0),
+							array("remoteFlavor",$this->translate("remote control"),0),
 						);
 			$this->DoKeys($level,$keys,"");
 			
@@ -393,12 +395,12 @@
 				{
                 $level = $result['acState'];
 
-                $keys = array( 	array('on','AC Status',0,"Sensibo.EinAus"),
-                                array('fanLevel','Luefter Level',3,"Sensibo.Fanlevel"),
-                                array("temperatureUnit",'Temperatureinheit',0),
-                                array("targetTemperature",'Soll Temperatur',2,false),
-                                array("mode",'Modus',3,"Sensibo.Modus"),
-								array("swing",'Swing',3,"Sensibo.Swing"),
+                $keys = array( 	array('on',$this->translate("air conditioning state"),0,"Sensibo.EinAus"),
+                                array('fanLevel',$this->translate("fan level"),3,"Sensibo.Fanlevel"),
+                                array("temperatureUnit",$this->translate("temperature unit"),0),
+                                array("targetTemperature",$this->translate("target temperature"),2,false),
+                                array("mode",$this->translate("mode"),3,"Sensibo.Modus"),
+								array("swing",$this->translate("swing"),3,"Sensibo.Swing"),
                             
                                     );
 				$this->DoKeys($level, $keys, "acState");
@@ -409,9 +411,9 @@
 				{
                 $level = $result['measurements'];
 
-                $keys = array( 	array('temperature','Ist Temperatur',2,"~Temperature"),
-								array('humidity','Ist Luftfeuchtigkeit',2,"~Humidity.F"),
-								array('rssi','RSSI',3,"Sensibo.RSSI"),        
+                $keys = array( 	array('temperature',$this->translate("temperature"),2,"~Temperature"),
+								array('humidity',$this->translate("humidity"),2,"~Humidity.F"),
+								array('rssi',$this->translate("rssi level"),3,"Sensibo.RSSI"),        
                             
                                     );
                 $this->DoKeys($level, $keys, "measurements");
@@ -423,7 +425,7 @@
 				{
                 $level = $result['connectionStatus'];
 
-                $keys = array( 	array('isAlive','Verbindung Status',0,"~Alert.Reversed"),
+                $keys = array( 	array('isAlive',$this->translate("connection state"),0,"~Alert.Reversed"),
                     
                         );
                 
@@ -435,7 +437,7 @@
 				{
                 $level = $result['room'];
 
-                $keys = array( 	array('name','Raumname',0),
+                $keys = array( 	array('name',$this->translate("room name"),0),
                     
                         );
                 
@@ -447,8 +449,8 @@
 				{
                 $level = $result['connectionStatus']['lastSeen'];
 
-                $keys = array( 	array('secondsAgo','Letzte Verbindung seit Sekunden',3,"Sensibo.Sekunden"),
-                            	array('time','Letzte Verbindung',1,"~UnixTimestamp"),
+                $keys = array( 	array('secondsAgo',$this->translate("last connection seconds"),3,"Sensibo.Sekunden"),
+                            	array('time',$this->translate("last connection"),1,"~UnixTimestamp"),
                             );
 
                 $this->DoKeys($level, $keys, "connectionStatus");
@@ -779,7 +781,7 @@
 		protected function SetTemperaturUnit($unit)
 			{
 
-			// $this->SendDebug(__FUNCTION__, "Temperatureinheit :" . $unit , 0);
+			
 
 			if ( $unit != 'C' and $unit != 'F' )
 				{
@@ -791,6 +793,9 @@
 			$ident = "acStatetargetTemperature";	
 			$VariableID = @$this->GetIDForIdent($ident);
 
+			// Variable noch nicht vorhanden
+			if ( $VariableID == false )	
+				return;
 
 			$array = IPS_GetVariable ($VariableID);	
 			$aktProfil = ($array['VariableCustomProfile']);	
@@ -1001,6 +1006,8 @@
 				$Swing1 = "rangeFull";
 			$Swing = $Swing1;
 			
+			// "temperatureUnit" => "C",
+
 			$postfields = json_encode(
 								array( "acState" => 
 										array( 
@@ -1008,7 +1015,7 @@
 										 		'mode'=> $Mode,
 												'fanLevel' => $Fan,
 												"targetTemperature" => $Soll,
-												"temperatureUnit" => "C",
+												
 												"swing" => $Swing
 											)
 									)
@@ -1278,7 +1285,7 @@
 					"elements":
 					[
 				  
-					  { "type": "Label"             , "label":  "####### Sensibo 1.0 #######" },
+					  { "type": "Label"             , "label":  "Sensibo 1.0#2" },
 					  
 					  
 				  
@@ -1287,7 +1294,7 @@
 					  
 
 
-					  { "type": "Select", "name": "GeraeteID", "caption": "Geraete ID",
+					  { "type": "Select", "name": "GeraeteID", "caption": "Device ID",
 						"options": 	[
 
 									'.
@@ -1297,7 +1304,7 @@
 									]
 					},
 				  
-					  { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "Sekunden" }
+					  { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "seconds" }
 				  
 				  
 					],
@@ -1306,7 +1313,7 @@
 					[  
 					  
 					  { "type": "Button", "label": "Update Data",                 "onClick": "SSB_Update($id);" },
-					  { "type": "Button", "label": "Update Devices",                 "onClick": "SSB_UpdateDevices($id);" }
+					  { "type": "Button", "label": "Update Devices",              "onClick": "SSB_UpdateDevices($id);" }
 					  
 				  
 					],
@@ -1314,11 +1321,11 @@
 				  
 					"status":
 					  [
-						  { "code": 101, "icon": "active", "caption": "Sensibo wird erstellt..." },
-						  { "code": 102, "icon": "active", "caption": "Sensibo ist aktiv" },
+						  { "code": 101, "icon": "active", "caption": "Sensibo is created" },
+						  { "code": 102, "icon": "active", "caption": "Sensibo is activ" },
 						
-						  { "code": 202, "icon": "error",  "caption": "API Key falsch" },
-						  { "code": 203, "icon": "error",  "caption": "Geraete ID falsch" }
+						  { "code": 202, "icon": "error",  "caption": "API Key not valid" },
+						  { "code": 203, "icon": "error",  "caption": "Device ID not valid" }
 				  
 					  ]
 				  
