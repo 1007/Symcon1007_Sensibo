@@ -185,7 +185,20 @@
 					
 					case "acStatemode":
 						
-			 
+						if ($Value == 0)	// Homekit Aus
+						   {
+							// $this->SetValue($Ident, $Value);
+
+							if ( $Value == true )
+								$state = "on";
+							else
+								$state = "off";
+							$this->SetACOn($state);
+							
+						   	break;	
+						   }
+
+
 						//Neuen Wert in die Statusvariable schreiben
 						$this->SetValue($Ident, $Value);
 	
@@ -313,6 +326,8 @@
 		public function Update()
 			{
 	
+			$this->CheckHomeKitProfil();
+
 			$this->GetAllDevices();	
 
 			$apikey = $this->GetAPIKey();
@@ -540,22 +555,22 @@
 						$value1 = -1;
 
 						if ( $value == "cool" )
-							$value1 = 0;
+							$value1 = 2;
 						if ( $value == "heat" )
 							$value1 = 1;
 						if ( $value == "fan" )
-							$value1 = 2;
-						if ( $value == "dry" )
-							$value1 = 3;
-						if ( $value == "auto" )
 							$value1 = 4;
+						if ( $value == "dry" )
+							$value1 = 5;
+						if ( $value == "auto" )
+							$value1 = 3;
 						
 						if ( $value1 == -1 )	
 							$this->SendDebug(__FUNCTION__, "acStatemode Fehler: ".$value, 0);			
 						else
 							$value = $value1;
 
-						//$this->SendDebug(__FUNCTION__, "acStatemode Fehler: ".$value, 0);			
+						// $this->SendDebug(__FUNCTION__, "acStatemode : ".$value, 0);			
 									
 
 						}	
@@ -990,7 +1005,7 @@
 
 			if ($Fan == false) 
 				{
-				$Fan   = $this->GetValue("acStatefanLevel");
+				$Fan   = @$this->GetValue("acStatefanLevel");
 				}
 					
 			$this->SendDebug(__FUNCTION__,"Fan : " .$Fan,0); 	
@@ -1124,30 +1139,32 @@
 
 		if ( $modus == true )	// wandele Integer in Namen
 			{
-			if ( $value == 0 )
-				$return = "cool";
+			
 			if ( $value == 1 )
-				$return = "heat";
+				$return = "heat";	
 			if ( $value == 2 )
-				$return = "fan";
+				$return = "cool";
 			if ( $value == 3 )
-				$return = "dry";
-			if ( $value == 4 )
 				$return = "auto";
+			if ( $value == 4 )
+				$return = "fan";
+			if ( $value == 5 )
+				$return = "dry";
 
 			}	
 		else					// wandele Namen in Integer
 			{
-			if ( $value == "cool" )
-				$return = 0;
+
 			if ( $value == "heat" )
-				$return = 1;
-			if ( $value == "fan" )
+				$return = 1;	
+			if ( $value == "cool" )
 				$return = 2;
-			if ( $value == "dry" )
-				$return = 3;
 			if ( $value == "auto" )
+				$return = 3;
+			if ( $value == "fan" )
 				$return = 4;
+			if ( $value == "dry" )
+				$return = 5;
 
 			}	
 
@@ -1187,7 +1204,53 @@
 		}
 
 
+   		//******************************************************************************
+		//	Check Homekit Profil
+		//******************************************************************************
+		protected function CheckHomeKitProfil()
+			{
+			
+			$ProfilName = "Sensibo.Modus";
+	
+			if(!IPS_VariableProfileExists($ProfilName)) 
+				{
+				$s = "Profil nicht vorhanden";	
+				$this->SendDebug(__FUNCTION__, $s ,0);
+				return;
+				}
+			else
+				{
+				//$s = "Profil vorhanden";	
+				//$this->SendDebug(__FUNCTION__, $s ,0);
+				}
+			
+			$profil = IPS_GetVariableProfile ($ProfilName);
+	
+			if ( $profil['MaxValue'] == 5 )	// Neues Profil Homekit bereits vorhanden
+				{
+				$s = "Profil ist neu ( Homekit )";	
+				$this->SendDebug(__FUNCTION__, $s ,0);
+				return;
+				}
+			else
+				{
+				$s = "Profil ist alt";	
+				$this->SendDebug(__FUNCTION__, $s ,0);
+				}	
 
+			$this->RegisterProfileInteger("Sensibo.Modus", "", "", "", Array(
+					Array(0, $this->translate("Off")	,  	"Climate",0),	// Homekit
+					Array(1, $this->translate("Heat")	,   "Climate",0),	// Homekit
+					Array(2, $this->translate("Cool")	,   "Climate",0),	// Homekit
+					Array(3, $this->translate("Auto")	,   "Climate",0),	// Homekit
+					Array(4, $this->translate("Fan")	,   "Climate",0),
+					Array(5, $this->translate("Dry")	,   "Climate",0),
+												
+					));
+	
+
+
+			}
 
    		//******************************************************************************
 		//	Curl GET Abfrage ausfuehren
@@ -1285,7 +1348,7 @@
 					"elements":
 					[
 				  
-					  { "type": "Label"             , "label":  "Sensibo 1.0#3" },
+					  { "type": "Label"             , "label":  "Sensibo 1.0#5" },
 					  
 					  
 				  
