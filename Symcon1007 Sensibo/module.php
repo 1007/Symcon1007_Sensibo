@@ -426,7 +426,7 @@
 				{
                 $level = $result['measurements'];
 
-                $keys = array( 	array('temperature',$this->translate("temperature"),2,"~Temperature.Room"),
+                $keys = array( 	array('temperature',$this->translate("temperature"),2,"Sensibo.Solltemperatur"),
 								array('humidity',$this->translate("humidity"),2,"~Humidity.F"),
 								array('rssi',$this->translate("rssi level"),3,"Sensibo.RSSI"),        
                             
@@ -821,7 +821,7 @@
 				{
 				if ( $unit == "C" )
 					{
-					$profil = "~Temperature.Room";
+					$profil = "Sensibo.Solltemperatur";
                     if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
                         $status = IPS_SetVariableCustomProfile($VariableID, $profil);
                         if ($status == false) {
