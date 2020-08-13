@@ -59,7 +59,7 @@
 	protected function RegisterAllProfile()
 		{
 			
-		$this->SendDebug(__FUNCTION__,"",0);
+		$this->SendDebug(__FUNCTION__."[".__LINE__."]","",0);
 
 		$this->RegisterProfile(1,"Sensibo.Sekunden"  	,"Clock"  		,"",$this->translate(" seconds"));
 		$this->RegisterProfile(1,"Sensibo.RSSI"  		,"Intensity"  	,"",$this->translate(" dbm"));
@@ -166,7 +166,7 @@
 		public function RequestAction($Ident, $Value) 
 			{
 
-			$this->SendDebug(__FUNCTION__,$Ident,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]",$Ident,0);
 			
 			switch($Ident) 
 					{
@@ -244,7 +244,7 @@
 
 
 					default:
-					$this->SendDebug(__FUNCTION__,"Ident unbekannt : " . $Ident,0);
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]","Ident unbekannt : " . $Ident,0);
 					}
 			 
 			}
@@ -260,11 +260,11 @@
 
                 $url = "https://home.sensibo.com/api/v2/pods/".$deviceID."/smartmode/?apiKey=".$apikey;
 
-                $this->SendDebug(__FUNCTION__, $url, 0);
+                $this->SendDebug(__FUNCTION__."[".__LINE__."]", $url, 0);
 
                 $resultcurl = $this->DoCurl($url);
 
-                $this->SendDebug(__FUNCTION__, "Result : " .$resultcurl, 0);
+                $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Result : " .$resultcurl, 0);
             }
 
    		//**************************************************************************
@@ -277,11 +277,11 @@
 
 			$url = "https://home.sensibo.com/api/v2/users/me/pods/?apiKey=".$apikey;
 
-			$this->SendDebug(__FUNCTION__,$url,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]",$url,0);
 
 			$resultcurl = $this->DoCurl($url);
 
-    		$this->SendDebug(__FUNCTION__,"Result : " .$resultcurl,0);
+    		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
 			if ( $resultcurl == false )
 				return;
@@ -298,7 +298,7 @@
 			foreach($result as $r )
 				{
 				if ( isset($r['id']))	
-					$this->SendDebug(__FUNCTION__,"Geraete ID : " .$r['id'],0);
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]","Geraete ID : " .$r['id'],0);
 
 				}
 
@@ -312,7 +312,7 @@
 		public function UpdateDevices()
 			{
 
-			$this->SendDebug(__FUNCTION__,"Suche Geraete",0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Suche Geraete",0);
 
 			$this->GetAllDevices();
 
@@ -336,23 +336,23 @@
 
 			if ( $deviceID == "" )
 				{
-				$this->SendDebug(__FUNCTION__,"Keine Device ID",0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","Keine Device ID",0);
 				return;
 				}
 
 			$url = "https://home.sensibo.com/api/v2/pods/".$deviceID."?fields=*&apiKey=".$apikey;
 
-			$this->SendDebug(__FUNCTION__,$url,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]",$url,0);
 
     		$resultcurl = $this->DoCurl($url);
 
-    		$this->SendDebug(__FUNCTION__,"Result : " .$resultcurl,0);
+    		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
 			$result = json_decode($resultcurl,true);
 
 			if ( $result == false )
 				{
-				$this->SendDebug(__FUNCTION__,"Result : NOK ",0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : NOK ",0);
 
 				return;	
 				}
@@ -426,7 +426,7 @@
 				{
                 $level = $result['measurements'];
 
-                $keys = array( 	array('temperature',$this->translate("temperature"),2,"~Temperature"),
+                $keys = array( 	array('temperature',$this->translate("temperature"),2,"~Temperature.Room"),
 								array('humidity',$this->translate("humidity"),2,"~Humidity.F"),
 								array('rssi',$this->translate("rssi level"),3,"Sensibo.RSSI"),        
                             
@@ -516,7 +516,7 @@
 							if ( $value == "rangeFull" )
 								$value = 1;
 							else
-								$this->SendDebug(__FUNCTION__, "acStateswing Fehler: ".$value, 0);			
+								$this->SendDebug(__FUNCTION__."[".__LINE__."]", "acStateswing Fehler: ".$value, 0);			
 							}		
 
 						}	
@@ -540,7 +540,7 @@
 							$value1 = 5;
 						
 						if ( $value1 == -1 )	
-							$this->SendDebug(__FUNCTION__, "acStatefanLevel Fehler: ".$value, 0);			
+							$this->SendDebug(__FUNCTION__."[".__LINE__."]", "acStatefanLevel Fehler: ".$value, 0);			
 						else
 							$value = $value1;
 
@@ -550,7 +550,7 @@
 
 					if ($ident == "acStatemode" )
 						{
-						//$this->SendDebug(__FUNCTION__, "acStatemode Fehler: ".$value, 0);			
+						//$this->SendDebug(__FUNCTION__."[".__LINE__."]", "acStatemode Fehler: ".$value, 0);			
 									
 						$value1 = -1;
 
@@ -566,11 +566,11 @@
 							$value1 = 3;
 						
 						if ( $value1 == -1 )	
-							$this->SendDebug(__FUNCTION__, "acStatemode Fehler: ".$value, 0);			
+							$this->SendDebug(__FUNCTION__."[".__LINE__."]", "acStatemode Fehler: ".$value, 0);			
 						else
 							$value = $value1;
 
-						// $this->SendDebug(__FUNCTION__, "acStatemode : ".$value, 0);			
+						// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "acStatemode : ".$value, 0);			
 									
 
 						}	
@@ -605,7 +605,7 @@
 					}	
 				else
 					{
-					$this->SendDebug(__FUNCTION__, "Key nicht gefunden : ".$key[0], 0);	
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Key nicht gefunden : ".$key[0], 0);	
 					}	
 				}	
 	
@@ -622,13 +622,13 @@
 			if ( isset($s) ) 
 				{
 				$value = $s;	
-				// $this->SendDebug(__FUNCTION__, "Key: ".$key . " Value: ".$value, 0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Key: ".$key . " Value: ".$value, 0);
 				$status = true;
 				return $value;
 				}
 			else
 				{
-				// $this->SendDebug(__FUNCTION__, "Nicht gefunden Key: ".$key, 0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Nicht gefunden Key: ".$key, 0);
 				// print_r($result);
 				$status = false ;
 				}	
@@ -638,50 +638,50 @@
 		//******************************************************************************
 		// Gefundene Werte in Variable schreiben (erstellen/Profil)
 		//******************************************************************************
-		protected function SetValueToVariable($name,$value,$ident,$profil=false)
+		protected function SetValueToVariable($name,$value,$ident,$profil=false,$position=0)
 			{
-			// $this->SendDebug(__FUNCTION__, "Name:" . $name ." Wert:".$value . " Ident: ".$ident." - ".$profil, 0);
+			// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Name:" . $name ." Wert:".$value . " Ident: ".$ident." - ".$profil, 0);
 
 			//$VariableID = @IPS_GetObjectIDByIdent ($ident,$this->InstanceID);
 			$VariableID = @$this->GetIDForIdent($ident);
 
 			if ($ident == "acStateon") 
 				{
-				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
 				@IPS_SetVariableCustomAction($VariableID,0);
 				@$this->EnableAction($ident);
 				}
 
 			if ($ident == "acStatetargetTemperature") 
 				{
-				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
 				@IPS_SetVariableCustomAction($VariableID,0);
 				@$this->EnableAction($ident);
 				}
 			
 			if ($ident == "acStatemode") 
 				{
-				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
 				@IPS_SetVariableCustomAction($VariableID,0);
 				@$this->EnableAction($ident);
 				}	
 
 			if ($ident == "acStatefanLevel") 
 				{
-				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
 				@IPS_SetVariableCustomAction($VariableID,0);
 				@$this->EnableAction($ident);
 				}	
 
 			if ($ident == "acStateswing") 
 				{
-				// $this->SendDebug(__FUNCTION__, "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Enable Action :" . $VariableID . " Ident: ".$ident, 0);
 				@IPS_SetVariableCustomAction($VariableID,0);
 				@$this->EnableAction($ident);
 				}	
 				
 			if ( $VariableID == false )	
-				$this->SendDebug(__FUNCTION__, "Ident NOK :" . $VariableID . " Ident: ".$ident, 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Ident NOK :" . $VariableID . " Ident: ".$ident, 0);
 			
 
 			// $array = @IPS_GetVariable ($VariableID);
@@ -712,15 +712,15 @@
 							
 					if ($profil != $aktprofil) 
 						{
-                        $this->SendDebug(__FUNCTION__, "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
+                        $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
                         $status = IPS_SetVariableCustomProfile($VariableID, $profil);
 						if ($status == false) 
 							{
-                            $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
+                            $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
                         	}
                     	}
 					
-					// $this->SendDebug(__FUNCTION__, "Custom Action :" , 0);	
+					// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Custom Action :" , 0);	
 					 // $this->EnableAction($ident);
 					// IPS_SetVariableCustomAction($VariableID,0);		
 
@@ -744,11 +744,11 @@
 						
 					if ($profil != $aktprofil) 
 						{
-                        $this->SendDebug(__FUNCTION__, "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
+                        $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
                         $status = IPS_SetVariableCustomProfile($VariableID, $profil);
 						if ($status == false) 
 							{
-                            $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
+                            $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
                         	}
                    		}	
 					}
@@ -773,11 +773,11 @@
 						
 					if ($profil != $aktprofil) 
 						{
-                        $this->SendDebug(__FUNCTION__, "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
+                        $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung :" . $VariableID . " Profil: [".$profil."]", 0);
                         $status = IPS_SetVariableCustomProfile($VariableID, $profil);
 						if ($status == false) 
 							{
-                            $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
+                            $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
                         	}
                    		}	
 					}	
@@ -800,7 +800,7 @@
 
 			if ( $unit != 'C' and $unit != 'F' )
 				{
-				$this->SendDebug(__FUNCTION__, "Temperatureinheit unbekannt :" . $unit , 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Temperatureinheit unbekannt :" . $unit , 0);
                 return;
 				}	
 
@@ -821,21 +821,21 @@
 				{
 				if ( $unit == "C" )
 					{
-					$profil = "~Temperature";
-                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__, "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
+					$profil = "~Temperature.Room";
+                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
                         $status = IPS_SetVariableCustomProfile($VariableID, $profil);
                         if ($status == false) {
-                            $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
+                            $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
                         }
                     }	
 					}
 				if ( $unit == "F" )
 					{
 					$profil = "~Temperature.Fahrenheit";
-                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__, "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
+                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
                         $status = IPS_SetVariableCustomProfile($VariableID, $profil);
                         if ($status == false) {
-                            $this->SendDebug(__FUNCTION__, "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
+                            $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
                         }
                     }		
 					}
@@ -871,11 +871,11 @@
 
 			if ( $status != 'success' )
 				{
-				$this->SendDebug(__FUNCTION__,"Success NOK : " ,0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","Success NOK : " ,0);
 				return false;	
 				}	
 			
-			$this->SendDebug(__FUNCTION__,"Success OK : " ,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Success OK : " ,0);
 			return true;	
 
 			}
@@ -913,7 +913,7 @@
     	public function SetACOn(string $state)
     		{
 
-			$this->SendDebug(__FUNCTION__,$state,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]",$state,0);
 
 				if ( $state == 'on' )
 					$this->SetACState(true);
@@ -930,7 +930,7 @@
     		{
 
 			$mode = $this->DecodeMode($mode,false);	
-			// $this->SendDebug(__FUNCTION__,": ".$mode ,0);	
+			// $this->SendDebug(__FUNCTION__."[".__LINE__."]",": ".$mode ,0);	
 			$this->SetACState(true,false,false,false,$mode);	
     		}
 
@@ -979,7 +979,7 @@
                 // $status = "off";
                 }		
 
-			$this->SendDebug(__FUNCTION__,"".$msg ." : " . $Mode,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","".$msg ." : " . $Mode,0);
 		
 			$apikey = $this->GetAPIKey();
 			$deviceID = $this->GetDeviceID();
@@ -994,21 +994,21 @@
 				$Soll   = $this->GetValue("acStatetargetTemperature");				
 				}
 					
-			$this->SendDebug(__FUNCTION__,"Soll : " .$Soll,0); 	
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Soll : " .$Soll,0); 	
 
 			if ($Swing == false) 
 				{
 				$Swing   = $this->GetValue("acStateswing");
 				}
 					
-			$this->SendDebug(__FUNCTION__,"Swing : " .$Swing,0); 	
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Swing : " .$Swing,0); 	
 
 			if ($Fan == false) 
 				{
 				$Fan   = @$this->GetValue("acStatefanLevel");
 				}
 					
-			$this->SendDebug(__FUNCTION__,"Fan : " .$Fan,0); 	
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Fan : " .$Fan,0); 	
 
 			$Mode = $this->DecodeMode($Mode,true);	
 				 
@@ -1036,7 +1036,7 @@
 									)
 									);
 
-			$this->SendDebug(__FUNCTION__,"Fields : " .$postfields,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Fields : " .$postfields,0);
 
 			// $postfields = '"{acState": {"on": true, "swing": "stopped", "mode": "fan", "fanLevel": "low", "targetTemperature":22 ,"temperatureUnit":"C" ,"swing":"stopped" }}';						
 
@@ -1046,7 +1046,7 @@
 			
 			$resultcurl = $this->DoCurlPOST($url,$postfields);
 
-    		$this->SendDebug(__FUNCTION__,"Result : " .$resultcurl,0);
+    		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
 			$result = json_decode($resultcurl,true);
 
@@ -1215,13 +1215,13 @@
 			if(!IPS_VariableProfileExists($ProfilName)) 
 				{
 				$s = "Profil nicht vorhanden";	
-				$this->SendDebug(__FUNCTION__, $s ,0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", $s ,0);
 				return;
 				}
 			else
 				{
 				//$s = "Profil vorhanden";	
-				//$this->SendDebug(__FUNCTION__, $s ,0);
+				//$this->SendDebug(__FUNCTION__."[".__LINE__."]", $s ,0);
 				}
 			
 			$profil = IPS_GetVariableProfile ($ProfilName);
@@ -1229,13 +1229,13 @@
 			if ( $profil['MaxValue'] == 5 )	// Neues Profil Homekit bereits vorhanden
 				{
 				$s = "Profil ist neu ( Homekit )";	
-				$this->SendDebug(__FUNCTION__, $s ,0);
+				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", $s ,0);
 				return;
 				}
 			else
 				{
 				$s = "Profil ist alt";	
-				$this->SendDebug(__FUNCTION__, $s ,0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", $s ,0);
 				}	
 
 			$this->RegisterProfileInteger("Sensibo.Modus", "", "", "", Array(
@@ -1269,7 +1269,7 @@
 		//******************************************************************************
 		protected function DoCurlPOST(string $url,$postfields,bool $debug=false)
 			{
-			$this->SendDebug(__FUNCTION__,"URL:  " .$url,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","URL:  " .$url,0);
 
 			$curl = curl_init($url);
 			curl_setopt($curl, CURLOPT_POST, 1);
@@ -1285,8 +1285,8 @@
 		//******************************************************************************
 		protected function DoCurlPATCH(string $url,$postfields,bool $debug=false)
 			{
-			$this->SendDebug(__FUNCTION__,"URL:  " .$url,0);
-			$this->SendDebug(__FUNCTION__,"FIELDS:  " .$postfields,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","URL:  " .$url,0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","FIELDS:  " .$postfields,0);
 			
 			$headers = array('Content-Type: application/json');
 			$curl = curl_init($url);
@@ -1321,7 +1321,7 @@
 			foreach($result as $r )
 				{
 				if ( isset($r['id']))	
-					$this->SendDebug(__FUNCTION__,"Geraete ID : " .$r['id'],0);
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]","Geraete ID : " .$r['id'],0);
 
 					$form = $form . ',{ "caption": "'.$r['id'].'", "value": "'.$r['id'].'" }';
 
