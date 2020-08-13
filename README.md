@@ -69,8 +69,9 @@ SSB_SetACMode($InstanceID, "auto");
 
 SSB_SetACMode($InstanceID, "dry");
 
+SSB_SetClimaReactOnOff($InstanceID, TRUE);
 
-
+SSB_SetClimaReactOnOff($InstanceID, FALSE);
 
 
 

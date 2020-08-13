@@ -19,7 +19,8 @@
             "device id": "Geraete ID",
             "room occupied": "Raum belegt",   
             "model": "Modell",
-            "geofency on exit" : "Nachricht beim Verlassen eines virtuellen Zaunes",
+            "geofency on exit" : "Klimaanlage ausschalten beim Verlassen",
+            "geofency on exit react" : "Nachricht beim Verlassen eines virtuellen Zaunes",
             "clean filter notification": "Filterbenachrichtigung", 
             "remote control": "Fernbedienung",
             "MAC address": "MAC Adresse",
@@ -32,9 +33,22 @@
             "last connection" : "Letzte Verbindung",
             "last connection seconds" : "Letzte Verbindung seit",
             
-            "Clima React State" : "Status Klima Reaktionen",
+            "Clima React State" : "Klima Reaktionen Status ",
+            "Clima React Type" : "Klima Reaktionen Typ ",
+            "Clima React Low":   "Untergrenze Temperatur/Luftfeuchte",
+            "Clima React High":   "Obergrenze Temperatur/Luftfeuchte",
+            "Low Temperature State" : "Status Grenzunterschreitung",
+            "High Temperature State" : "Status Grenzueberschreitung",
+            "Low Temperature Fanlevel" : "Luefter bei  Grenzunterschreitung",
+            "High Temperature Fanlevel" : "Luefter bei Grenzueberschreitung",
+            "Low Temperature Mode" : "Modus bei  Grenzunterschreitung",
+            "High Temperature Mode" : "Modus bei Grenzueberschreitung",
+            "Low Temperature Target" : "Ziel bei  Grenzunterschreitung",
+            "High Temperature Target" : "Ziel bei Grenzueberschreitung",
             
 
+            "Geofency Trigger Radius": "Geofence Radius",
+            "meter": "Meter",
 
             "temperature" : "Ist Temperatur",
             "humidity" : "Ist Luftfeuchtigkeit",

@@ -63,8 +63,10 @@
 
 		$this->RegisterProfile(1,"Sensibo.Sekunden"  	,"Clock"  		,"",$this->translate(" seconds"));
 		$this->RegisterProfile(1,"Sensibo.RSSI"  		,"Intensity"  	,"",$this->translate(" dbm"));
+		$this->RegisterProfile(1,"Sensibo.Entfernung"  	,"Distance"  	,"",$this->translate(" Meter"));
 
 		$this->RegisterProfile(2,"Sensibo.Solltemperatur"  	,"Temperature"  ,""," °C",15,30,1);
+		$this->RegisterProfile(2,"Sensibo.Threshold"  		,""  ,""," °C %");
 
 		$this->RegisterProfileEinAus("Sensibo.EinAus", "Power", "", "", Array(
 			Array(0, $this->translate("off"),  	"", 0x0000FF),
@@ -297,16 +299,36 @@
    		//**************************************************************************
 		// 
 		//**************************************************************************
+		protected function CheckIdentExist($ident)
+			{
+			
+			$id = @$this->GetIDForIdent ($ident);	
+			if ( $id == FALSE )
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Ident existiert nicht : ".$ident, 0);
+
+			return $id;
+
+            }	
+
+
+   		//**************************************************************************
+		// 
+		//**************************************************************************
 		protected function DecodeClimateReact($result)
 			{
-			$this->SendDebug(__FUNCTION__."[".__LINE__."]", "", 0);
+			// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "", 0);
+
+			// $this->GetIDForIdent("Status33321123");
 
 			if ( isset($result['deviceUid']))
 				$deviceuid = $result['deviceUid'];
 			else
 				{
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "deviceUid NOK! Keine ClimaReact Einstellungen vorhanden", 0);
-				@$this->SetValue("climareactonoff", false); // wenn vorhanden
+				
+				$result = $this->CheckIndentExist("climareactonoff");
+				if ( $result == TRUE )
+					$this->SetValue("climareactonoff", false); // wenn vorhanden
 				return false;
 				}
 
@@ -318,10 +340,153 @@
 				return false;
 				}
 
-			$name = $this->translate("Clima React State");
-				
+			$name = $this->translate("Clima React State");	
 			$this->SetValueToVariable($name,$enabled,"climareactonoff","Sensibo.EinAus",70);	
-			$this->SendDebug(__FUNCTION__."[".__LINE__."]", "", 0);
+			
+			if ( isset($result['type']))
+				$type = $result['type'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "type not found", 0);
+				return false;
+				}
+
+			if ( $type == 'temperature')
+				$type = "Temperatur";	
+			if ( $type == 'humidity')
+				$type = "Luftfeuchtigkeit";	
+				
+			$name = $this->translate("Clima React Type");	
+			$this->SetValueToVariable($name,$type,"climareactontype","",71);	
+			
+			
+			if ( isset($result['highTemperatureThreshold']))
+				$high = $result['highTemperatureThreshold'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold not found", 0);
+				return false;
+				}
+
+			$name = $this->translate("Clima React High");	
+			$this->SetValueToVariable($name,$high,"climareacthigh","Sensibo.Threshold",80);	
+	
+
+			if ( isset($result['lowTemperatureThreshold']))
+				$low = $result['lowTemperatureThreshold'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold not found", 0);
+				return false;
+				}
+			
+			$name = $this->translate("Clima React Low");	
+			$this->SetValueToVariable($name,$low,"climareactlow","Sensibo.Threshold",90);	
+	
+
+			if ( isset($result['lowTemperatureState']['on']))
+				$on = $result['lowTemperatureState']['on'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold on not found", 0);
+				return false;
+				}
+			
+			$name = $this->translate("Low Temperature State");	
+			$this->SetValueToVariable($name,$on,"lowtemperaturestateon","Sensibo.EinAus",91);	
+			
+			if ( isset($result['highTemperatureState']['on']))
+				$on = $result['highTemperatureState']['on'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold on not found", 0);
+				return false;
+				}
+			
+			$name = $this->translate("High Temperature State");	
+			$this->SetValueToVariable($name,$on,"hightemperaturestateon","Sensibo.EinAus",81);	
+
+
+			// FAN  *********************************************************************************
+			if ( isset($result['lowTemperatureState']['fanLevel']))
+				$on = $result['lowTemperatureState']['fanLevel'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold fanLevel not found", 0);
+				return false;
+				}
+			
+			$on = $this->DecodeFanlevel($on,false);
+			$name = $this->translate("Low Temperature Fanlevel");	
+			$this->SetValueToVariable($name,$on,"lowtemperaturestatefanlevel","Sensibo.Fanlevel",92);	
+			
+			if ( isset($result['highTemperatureState']['fanLevel']))
+				$on = $result['highTemperatureState']['fanLevel'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold fanlevel not found", 0);
+				return false;
+				}
+
+			$on = $this->DecodeFanlevel($on,false);
+			$name = $this->translate("High Temperature Fanlevel");	
+			$this->SetValueToVariable($name,$on,"hightemperaturestatefanlevel","Sensibo.Fanlevel",82);	
+
+
+			// Modus  *********************************************************************************
+			if ( isset($result['lowTemperatureState']['mode']))
+				$on = $result['lowTemperatureState']['mode'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold mode not found", 0);
+				return false;
+				}
+			
+			$on = $this->DecodeMode($on,false);
+			$name = $this->translate("Low Temperature Mode");	
+			$this->SetValueToVariable($name,$on,"lowtemperaturestatemode","Sensibo.Modus",92);	
+			
+			if ( isset($result['highTemperatureState']['mode']))
+				$on = $result['highTemperatureState']['mode'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold mode not found", 0);
+				return false;
+				}
+
+			$on = $this->DecodeMode($on,false);
+			$name = $this->translate("High Temperature Modus");	
+			$this->SetValueToVariable($name,$on,"hightemperaturestatemode","Sensibo.Modus",82);	
+
+
+			// Zielwert Temperatur/Luftfeuchte  ********************************************************
+			if ( isset($result['lowTemperatureState']['targetTemperature']))
+				$on = $result['lowTemperatureState']['targetTemperature'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold targetTemperature not found", 0);
+				return false;
+				}
+			
+			$on = floatval($on);
+			$name = $this->translate("Low Temperature Target");	
+			$this->SetValueToVariable($name,$on,"lowtemperaturestatetarget","Sensibo.Threshold",92);	
+			
+			if ( isset($result['highTemperatureState']['targetTemperature']))
+				$on = $result['highTemperatureState']['targetTemperature'];
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold targetTemperature not found", 0);
+				return false;
+				}
+			$on = floatval($on);	
+			$name = $this->translate("High Temperature Target");	
+			$this->SetValueToVariable($name,$on,"hightemperaturestatetarget","Sensibo.Threshold",82);	
+
+
+
+
+			// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "", 0);
 
             }
 
@@ -450,7 +615,8 @@
 				
 			$level = $result;	
 			$keys = array( 	array('macAddress',$this->translate("MAC address"),0), 
-							array('isGeofenceOnExitEnabled',$this->translate("geofency on exit"),0,"~Switch"),
+							array('isGeofenceOnExitEnabled',$this->translate("geofency on exit"),0,"~Switch",31),
+							// array('isClimateReactGeofenceOnExitEnabled',$this->translate("geofency on exit react"),0,"~Switch",32),
 							array("currentlyAvailableFirmwareVersion",$this->translate("available firmware"),0),
 							array("cleanFiltersNotificationEnabled",$this->translate("clean filter notification"),0,"~Switch"),
 							array("id",$this->translate("device id"),0),
@@ -505,7 +671,19 @@
                 $this->DoKeys($level, $keys, "connectionStatus");
 				}
 
+			if (isset($result['location']) == true) 
+				{
+                $level = $result['location'];
+
+                $keys = array( 	array('geofenceTriggerRadius',$this->translate("Geofency Trigger Radius"),0,"Sensibo.Entfernung",30),
+                    
+                        );
+                
+                $this->DoKeys($level, $keys, "location");
+				}
+
 				
+
 			if (isset($result['room']) == true) 
 				{
                 $level = $result['room'];
@@ -633,6 +811,7 @@
 
 						}	
 
+					$position = 0;	
 
 					if ( $key[2] == 1 )
 						{
@@ -656,10 +835,13 @@
 					if ( isset ($key[3]) )
 						$profil = $key[3];
 
+					if ( isset ($key[4]) )
+						$position = $key[4];
+	
 					
 
 
-					$this->SetValueToVariable($name,$value,$ident,$profil);	
+					$this->SetValueToVariable($name,$value,$ident,$profil,$position);	
 					}	
 				else
 					{
@@ -676,7 +858,16 @@
 		protected function LookingForKey($result,$key,&$status)
 			{
 		
-			$s = @$result[$key];	
+			if (isset($result[$key]) == false) 
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", " Result Key NOK : ".$key, 0);
+				$status = false ;
+				
+				return FALSE;	
+				}
+			
+			
+			$s = $result[$key];	
 			if ( isset($s) ) 
 				{
 				$value = $s;	
@@ -699,36 +890,42 @@
 		protected function SetValueToVariable($name,$value,$ident,$profil=false,$position=0)
 			{
 			
-			$VariableID = @$this->GetIDForIdent($ident);
-
+			$VariableID = $this->CheckIdentExist($ident);	
+			
 			if ($ident == "acStateon") 
 				{
-				@$this->EnableAction($ident);
+				if ( $VariableID != false )	
+					$this->EnableAction($ident);
 				}
 
 			if ($ident == "acStatetargetTemperature") 
 				{
-				@$this->EnableAction($ident);
+				if ( $VariableID != false )	
+					$this->EnableAction($ident);
 				}
 			
 			if ($ident == "acStatemode") 
 				{
-				@$this->EnableAction($ident);
+				if ( $VariableID != false )	
+					$this->EnableAction($ident);
 				}	
 
 			if ($ident == "acStatefanLevel") 
 				{
-				@$this->EnableAction($ident);
+				if ( $VariableID != false )	
+					$this->EnableAction($ident);
 				}	
 
 			if ($ident == "acStateswing") 
 				{
-				@$this->EnableAction($ident);
+				if ( $VariableID != false )	
+					$this->EnableAction($ident);
 				}	
 				
 			if ($ident == "climareactonoff") 
 				{
-				@$this->EnableAction($ident);
+				if ( $VariableID != false )	
+					$this->EnableAction($ident);
 				}	
 
 			if ( $VariableID == false )	
@@ -801,8 +998,9 @@
 				}	
 
 			$ident = "acStatetargetTemperature";	
-			$VariableID = @$this->GetIDForIdent($ident);
 
+			$VariableID = $this->CheckIdentExist($ident);
+			
 			// Variable noch nicht vorhanden
 			if ( $VariableID == false )	
 				return;
@@ -839,8 +1037,7 @@
 
 				}	
 
-			// $ident = "measurementstemperature";	
-			// $VariableID = @$this->GetIDForIdent($ident);
+			
 
 
 			}	
@@ -872,7 +1069,7 @@
 				return false;	
 				}	
 			
-			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Success OK : " ,0);
+			// $this->SendDebug(__FUNCTION__."[".__LINE__."]","Success OK : " ,0);
 			return true;	
 
 			}
@@ -909,8 +1106,30 @@
 		//******************************************************************************
     	public function SetClimaReactOnOff($state)
     		{
-            $this->SendDebug(__FUNCTION__."[".__LINE__."]", $state, 0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $state, 0);
 			
+			$this->SetValue('climareactonoff',$state);
+
+			$apikey = $this->GetAPIKey();
+			$deviceID = $this->GetDeviceID();
+
+			$postfields = json_encode( array('enabled'=> $state) );
+
+			$url = "https://home.sensibo.com/api/v2/pods/".$deviceID."/smartmode?apiKey=".$apikey;
+	
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $url, 0);
+
+
+			$resultcurl = $this->DoCurlPUT($url,$postfields);
+
+    		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
+
+			$result = json_decode($resultcurl,TRUE);
+
+			$status = $this->CheckResult($result);
+
+			return $status;
+
 			}
 
 		//******************************************************************************
@@ -1008,7 +1227,7 @@
 
 			if ($Fan == false) 
 				{
-				$Fan   = @$this->GetValue("acStatefanLevel");
+				$Fan  = $this->GetValue("acStatefanLevel");
 				}
 					
 			$this->SendDebug(__FUNCTION__."[".__LINE__."]","Fan : " .$Fan,0); 	
@@ -1367,7 +1586,7 @@
 					"elements":
 					[
 				  
-					  { "type": "Label"             , "label":  "Sensibo 1.0#7" },
+					  { "type": "Label"             , "label":  "Sensibo 1.0#9" },
 					  
 					  
 				  
@@ -1394,8 +1613,8 @@
 					"actions":
 					[  
 					  
-					  { "type": "Button", "label": "Update Data",                 "onClick": "SSB_Update($id);" },
-					  { "type": "Button", "label": "Update Devices",              "onClick": "SSB_UpdateDevices($id);" }
+					  { "type": "Button", "label": "Update Data",     "width": "250px",           "onClick": "SSB_Update($id);" },
+					  { "type": "Button", "label": "Update Devices",  "width": "250px",           "onClick": "SSB_UpdateDevices($id);" }
 					  
 				  
 					],
