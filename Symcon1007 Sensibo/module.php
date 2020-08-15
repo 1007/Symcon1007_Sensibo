@@ -26,6 +26,8 @@
 			$this->RegisterPropertyString("GeraeteID", "");
 			$this->RegisterTimer("SSB_UpdateTimer", 10, 'SSB_Update($_IPS["TARGET"]);');
 			$this->RegisterAttributeString("AllDevices", "");
+			$this->RegisterPropertyBoolean("Modulaktiv", true);
+			$this->RegisterPropertyBoolean("ShowMoreDebug", false);
 
             // Diese Zeile nicht loeschen.
             parent::Create();
@@ -39,6 +41,9 @@
 		public function ApplyChanges() 
 			{
 
+			// Diese Zeile nicht loeschen
+			parent::ApplyChanges();
+				
 			$this->RegisterAllProfile();
 
 			$this->GetConfigurationForm();
@@ -46,11 +51,16 @@
         	//Timer stellen
 			$interval = $this->ReadPropertyInteger("Intervall") ;
 			$this->SetTimerInterval("SSB_UpdateTimer", $interval*1000);
+			
 
-			$this->SetStatus(102);
+			$aktiv = $this->ReadPropertyBoolean("Modulaktiv") ;
+			if ( $aktiv == true )	
+				$this->SetStatus(102);
+			else
+				$this->SetStatus(104);	
 
-			// Diese Zeile nicht loeschen
-            parent::ApplyChanges();
+
+			
         	}
 
 	//******************************************************************************
@@ -100,14 +110,16 @@
 				));
 
 		$this->RegisterProfileInteger("Sensibo.Modus", "", "", "", Array(
-				Array(0, $this->translate("Cool")	,  	"Climate",0),
-				Array(1, $this->translate("Heat")	,   "Climate",0),
-				Array(2, $this->translate("Fan")	,   "Climate",0),
-				Array(3, $this->translate("Dry")	,   "Climate",0),
-				Array(4, $this->translate("Auto")	,   "Climate",0)
-							
+				Array(0, $this->translate("Off")	,  	"Climate",0),	// Homekit
+				Array(1, $this->translate("Heat")	,   "Climate",0),	// Homekit
+				Array(2, $this->translate("Cool")	,   "Climate",0),	// Homekit
+				Array(3, $this->translate("Auto")	,   "Climate",0),	// Homekit
+				Array(4, $this->translate("Fan")	,   "Climate",0),
+				Array(5, $this->translate("Dry")	,   "Climate",0),
+												
 				));
-						
+				
+										
 		}
 
 	//**************************************************************************
@@ -550,6 +562,24 @@
 		public function Update()
 			{
 	
+			$currentStatus = $this->GetStatus();
+			if ( $currentStatus == 103 )			// wird geloescht, kein Update machen
+				return;
+
+			if ( $this->ReadPropertyBoolean("Modulaktiv") == false )
+				{
+				$this->SetStatus(104);
+				return;
+				}
+
+			$aktiv = $this->ReadPropertyBoolean("Modulaktiv") ;
+			if ( $aktiv == true )	
+				$this->SetStatus(102);
+			else
+				$this->SetStatus(104);	
+	
+
+
 			$this->CheckHomeKitProfil();
 
 			$this->GetAllDevices();	
@@ -589,6 +619,10 @@
 
 			$this->GetClimateReact();
 
+
+			
+
+
 			}
 
 		//**************************************************************************
@@ -614,18 +648,18 @@
 				return false;
 				
 			$level = $result;	
-			$keys = array( 	array('macAddress',$this->translate("MAC address"),0), 
-							array('isGeofenceOnExitEnabled',$this->translate("geofency on exit"),0,"~Switch",31),
+			$keys = array( 	array('macAddress',$this->translate("MAC address"),0,"",50), 
+							array('isGeofenceOnExitEnabled',$this->translate("geofency on exit"),0,"~Switch",61),
 							// array('isClimateReactGeofenceOnExitEnabled',$this->translate("geofency on exit react"),0,"~Switch",32),
-							array("currentlyAvailableFirmwareVersion",$this->translate("available firmware"),0),
-							array("cleanFiltersNotificationEnabled",$this->translate("clean filter notification"),0,"~Switch"),
-							array("id",$this->translate("device id"),0),
-							array("firmwareVersion",$this->translate("current firmware"),0),
-							array("roomIsOccupied",$this->translate("room occupied"),0,"~Switch"),
-							array("firmwareType",$this->translate("type firmware"),0),
-							array("productModel",$this->translate("model"),0),
+							array("currentlyAvailableFirmwareVersion",$this->translate("available firmware"),0,"",56),
+							array("cleanFiltersNotificationEnabled",$this->translate("clean filter notification"),0,"~Switch",50),
+							array("id",$this->translate("device id"),0,"",50),
+							array("firmwareVersion",$this->translate("current firmware"),0,"",56),
+							array("roomIsOccupied",$this->translate("room occupied"),0,"~Switch",50),
+							array("firmwareType",$this->translate("type firmware"),0,"",55),
+							array("productModel",$this->translate("model"),0,"",50),
 							// array("temperatureUnit","Temperatureinheit",0),
-							array("remoteFlavor",$this->translate("remote control"),0),
+							array("remoteFlavor",$this->translate("remote control"),0,"",50),
 						);
 			$this->DoKeys($level,$keys,"");
 			
@@ -634,12 +668,12 @@
 				{
                 $level = $result['acState'];
 
-                $keys = array( 	array('on',$this->translate("air conditioning state"),0,"Sensibo.EinAus"),
-                                array('fanLevel',$this->translate("fan level"),3,"Sensibo.Fanlevel"),
+                $keys = array( 	array('on',$this->translate("air conditioning state"),0,"Sensibo.EinAus",2),
+                                array('fanLevel',$this->translate("fan level"),3,"Sensibo.Fanlevel",11),
                                 array("temperatureUnit",$this->translate("temperature unit"),0),
-                                array("targetTemperature",$this->translate("target temperature"),2,"Sensibo.Solltemperatur"),
-                                array("mode",$this->translate("mode"),3,"Sensibo.Modus"),
-								array("swing",$this->translate("swing"),3,"Sensibo.Swing"),
+                                array("targetTemperature",$this->translate("target temperature"),2,"Sensibo.Solltemperatur",4),
+                                array("mode",$this->translate("mode"),3,"Sensibo.Modus",10),
+								array("swing",$this->translate("swing"),3,"Sensibo.Swing",12),
                             
                                     );
 				$this->DoKeys($level, $keys, "acState");
@@ -650,9 +684,9 @@
 				{
                 $level = $result['measurements'];
 
-                $keys = array( 	array('temperature',$this->translate("temperature"),2,"Sensibo.Solltemperatur"),
-								array('humidity',$this->translate("humidity"),2,"~Humidity.F"),
-								array('rssi',$this->translate("rssi level"),3,"Sensibo.RSSI"),        
+                $keys = array( 	array('temperature',$this->translate("temperature"),2,"Sensibo.Solltemperatur",5),
+								array('humidity',$this->translate("humidity"),2,"~Humidity.F",6),
+								array('rssi',$this->translate("rssi level"),3,"Sensibo.RSSI",15),        
                             
                                     );
                 $this->DoKeys($level, $keys, "measurements");
@@ -664,7 +698,7 @@
 				{
                 $level = $result['connectionStatus'];
 
-                $keys = array( 	array('isAlive',$this->translate("connection state"),0,"~Alert.Reversed"),
+                $keys = array( 	array('isAlive',$this->translate("connection state"),0,"~Alert.Reversed",50),
                     
                         );
                 
@@ -675,7 +709,7 @@
 				{
                 $level = $result['location'];
 
-                $keys = array( 	array('geofenceTriggerRadius',$this->translate("Geofency Trigger Radius"),0,"Sensibo.Entfernung",30),
+                $keys = array( 	array('geofenceTriggerRadius',$this->translate("Geofency Trigger Radius"),0,"Sensibo.Entfernung",60),
                     
                         );
                 
@@ -688,7 +722,7 @@
 				{
                 $level = $result['room'];
 
-                $keys = array( 	array('name',$this->translate("room name"),0),
+                $keys = array( 	array('name',$this->translate("room name"),0,"",1),
                     
                         );
                 
@@ -700,8 +734,8 @@
 				{
                 $level = $result['connectionStatus']['lastSeen'];
 
-                $keys = array( 	array('secondsAgo',$this->translate("last connection seconds"),3,"Sensibo.Sekunden"),
-                            	array('time',$this->translate("last connection"),1,"~UnixTimestamp"),
+                $keys = array( 	array('secondsAgo',$this->translate("last connection seconds"),3,"Sensibo.Sekunden",50),
+                            	array('time',$this->translate("last connection"),1,"~UnixTimestamp",50),
                             );
 
                 $this->DoKeys($level, $keys, "connectionStatus");
@@ -878,7 +912,6 @@
 			else
 				{
 				// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Nicht gefunden Key: ".$key, 0);
-				// print_r($result);
 				$status = false ;
 				}	
 			}
@@ -890,59 +923,60 @@
 		protected function SetValueToVariable($name,$value,$ident,$profil=false,$position=0)
 			{
 			
-			$VariableID = $this->CheckIdentExist($ident);	
-			
+            $VariableID = $this->CheckIdentExist($ident);	
+            
+            $enableAction = false;
+            
 			if ($ident == "acStateon") 
 				{
-				if ( $VariableID != false )	
-					$this->EnableAction($ident);
+                $enableAction = true;
 				}
 
 			if ($ident == "acStatetargetTemperature") 
 				{
-				if ( $VariableID != false )	
-					$this->EnableAction($ident);
-				}
+                $enableAction = true;
+                }
 			
 			if ($ident == "acStatemode") 
 				{
-				if ( $VariableID != false )	
-					$this->EnableAction($ident);
-				}	
+                $enableAction = true;                
+                }	
 
 			if ($ident == "acStatefanLevel") 
 				{
-				if ( $VariableID != false )	
-					$this->EnableAction($ident);
+                $enableAction = true;    
 				}	
 
 			if ($ident == "acStateswing") 
 				{
-				if ( $VariableID != false )	
-					$this->EnableAction($ident);
-				}	
+                $enableAction = true;    
+                }	
 				
 			if ($ident == "climareactonoff") 
 				{
-				if ( $VariableID != false )	
-					$this->EnableAction($ident);
+                $enableAction = true;    
 				}	
 
 			if ( $VariableID == false )	
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", $name . "Ident NOK :" . $VariableID . " Ident: ".$ident, 0);
 			
-
 			// Variable ist Typ String
 			if (is_string($value) == true) 
 				{ 
 				if ( $VariableID == false )
 					$VariableID = $this->RegisterVariableString($ident, $name,$profil,$position);
+
+				if ($VariableID != false) 
+					{
+					if ( $enableAction == true )
+						$this->EnableAction($ident);
+
+                    $old = $this->GetValue($ident);
+                    if ($old != $value) 
+                        $this->SetValue($ident, $value);
+                    }
+                }	
 				
-				$old = $this->GetValue($ident);
-				if ( $old != $value )	
-					$this->SetValue($ident,$value);
-	
-				}
 				
 			// Variable ist Typ Bool
 			if (is_bool($value) == true) 
@@ -951,25 +985,34 @@
 				if ( $VariableID == false )
 					$VariableID = $this->RegisterVariableBoolean($ident,$name,$profil,$position);
 
-				$old = $this->GetValue($ident);
-				if ( $old != $value )	
-					$this->SetValue($ident,$value);
+				if ($VariableID != false) 
+					{
+					if ( $enableAction == true )
+						$this->EnableAction($ident);
+
+                    $old = $this->GetValue($ident);
+                    if ($old != $value) 
+                        $this->SetValue($ident, $value);
+                    }
 				}	
 
 			// Variable ist Typ Integer	
 			if (is_integer($value) == true) 
 				{ 
 				if ($VariableID == false) 
-					{
 					$VariableID = $this->RegisterVariableInteger($ident, $name, $profil, $position);
-					}	
 				
-				$old = $this->GetValue($ident);
-				if ( $old != $value )	
-					$this->SetValue($ident,$value);
+				if ($VariableID != false) 
+					{
+					if ( $enableAction == true )
+						$this->EnableAction($ident);
+
+                    $old = $this->GetValue($ident);
+                    if ($old != $value) 
+                        $this->SetValue($ident, $value);
+                    }
 
 				}
-
 
 			// Variable ist Typ Float
 			if (is_float($value) == true) 
@@ -977,11 +1020,16 @@
 				if ( $VariableID == false )
 					$VariableID = $this->RegisterVariableFloat($ident, $name,$profil,$position);
 
-				$old = $this->GetValue($ident);
-				if ( $old != $value )	
-					$this->SetValue($ident,$value);
-				}		
+				if ($VariableID != false) 
+					{
+					if ( $enableAction == true )
+						$this->EnableAction($ident);
 
+                    $old = $this->GetValue($ident);
+                    if ($old != $value) 
+                        $this->SetValue($ident, $value);
+                    }
+				}		
 
             }	
 
@@ -1013,26 +1061,12 @@
 				{
 				if ( $unit == "C" )
 					{
-					/* 	
-					$profil = "Sensibo.Solltemperatur";
-                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
-                        // $status = IPS_SetVariableCustomProfile($VariableID, $profil);
-                        if ($status == false) {
-                            $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
-						}
-					*/	
+					
                     }	
 					
 				if ( $unit == "F" )
 					{
-					/* 	
-					$profil = "~Temperature.Fahrenheit";
-                    if ($aktProfil != $profil) { $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Temperatureinheit :" . $aktProfil ."-".$VariableID, 0);
-						// $status = IPS_SetVariableCustomProfile($VariableID, $profil);
-                        if ($status == false) {
-                            $this->SendDebug(__FUNCTION__."[".__LINE__."]", "Profilaenderung NOK :" . $VariableID . " Profil: ".$profil, 0);
-                        }
-                    }	*/	
+						
 					}
 
 				}	
@@ -1460,18 +1494,6 @@
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", $s ,0);
 				}	
 
-			$this->RegisterProfileInteger("Sensibo.Modus", "", "", "", Array(
-					Array(0, $this->translate("Off")	,  	"Climate",0),	// Homekit
-					Array(1, $this->translate("Heat")	,   "Climate",0),	// Homekit
-					Array(2, $this->translate("Cool")	,   "Climate",0),	// Homekit
-					Array(3, $this->translate("Auto")	,   "Climate",0),	// Homekit
-					Array(4, $this->translate("Fan")	,   "Climate",0),
-					Array(5, $this->translate("Dry")	,   "Climate",0),
-												
-					));
-	
-
-
 			}
 
    		//******************************************************************************
@@ -1575,67 +1597,83 @@
 			}
 
 		//******************************************************************************
+		//	Unixtimestamp wandeln	
+		//******************************************************************************
+		protected function TimestampToString($timestamp)
+			{
+			return date('d.m.Y H:i:s',$timestamp);
+			}
+
+
+
+
+		//******************************************************************************
 		//	Konfigurationsformular dynamisch erstellen
 		//******************************************************************************
 		public function GetConfigurationForm() 
 			{
-				$form = '
-				
 
+				$library = IPS_GetLibrary("{369541F7-A037-96E4-A4A4-611C4EA6B925}");
+				$name = $library['Name'];
+				$version = $library['Version'];
+				$build = $library['Build'];
+				$date = $library['Date'];
+				$date = $this->TimestampToString($date);
+
+				$version = $name." " . $version . "#".$build ."[".$date."]"."10";
+				$form = '
+			
 				{
 					"elements":
 					[
-				  
-					  { "type": "Label"             , "label":  "Sensibo 1.0#9" },
+						{ "type": "Label"             , "label":  "'.$version.'" },
 					  
-					  
-				  
-					  { "type": "ValidationTextBox", "name": "APIKey", "caption": "API Key" },
-					  
-					  
-
-
-					  { "type": "Select", "name": "GeraeteID", "caption": "Device ID",
-						"options": 	[
-
-									'.
-									$this->GetDevicesFormular()
-									.'
-
+					  	{
+						"type":  "ExpansionPanel", "caption": "Settings",
+						"items": 	[
+										{ "type": "CheckBox"          	, "name" :  "Modulaktiv",  	"caption": "Modul aktiv" },
+										{ "type": "ValidationTextBox"	, "name" : 	"APIKey", 		"caption": "API Key" },
+										{ "type": "IntervalBox"       	, "name" :  "Intervall", 	"caption": "Sekunden" },
+								
+										{ "type": "Select", "name": "GeraeteID", "caption": "Device ID",
+											"options": 	[
+															'.
+																$this->GetDevicesFormular()
+															.'
+														]
+										}								
 									]
-					},
-				  
-					  { "type": "IntervalBox"       , "name" :  "Intervall", "caption": "seconds" }
-				  
-				  
+						  },
+						  
+						  
+
+						  {
+							"type":  "ExpansionPanel", "caption": "Expert Parameters",
+							"items": 	[
+							  			{"type": "CheckBox", "name": "ShowMoreDebug", "caption": "Aktivate more Debug"}
+										]
+						  } 
 					],
 					
 					"actions":
-					[  
-					  
+					[   
 					  { "type": "Button", "label": "Update Data",     "width": "250px",           "onClick": "SSB_Update($id);" },
 					  { "type": "Button", "label": "Update Devices",  "width": "250px",           "onClick": "SSB_UpdateDevices($id);" }
-					  
-				  
 					],
-				  
 				  
 					"status":
 					  [
-						  { "code": 101, "icon": "active", "caption": "Sensibo is created" },
-						  { "code": 102, "icon": "active", "caption": "Sensibo is activ" },
+						  { "code": 101, "icon": "active", 		"caption": "Sensibo is created" },
+						  { "code": 102, "icon": "active", 		"caption": "Sensibo is activ" },
+						  { "code": 103, "icon": "active", 		"caption": "Sensibo is deleting" },
+						  { "code": 104, "icon": "inactive", 	"caption": "Sensibo is inactiv" },
 						
-						  { "code": 202, "icon": "error",  "caption": "API Key not valid" },
-						  { "code": 203, "icon": "error",  "caption": "Device ID not valid" }
-				  
+						  { "code": 202, "icon": "error",  		"caption": "API Key not valid" },
+						  { "code": 203, "icon": "error",  		"caption": "Device ID not valid" }
 					  ]
-				  
-				  
-				  
+				    
 				  }
-				
-				
-				
+					
 				';
 
                 return $form;

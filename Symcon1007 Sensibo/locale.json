@@ -46,6 +46,9 @@
             "Low Temperature Target" : "Ziel bei  Grenzunterschreitung",
             "High Temperature Target" : "Ziel bei Grenzueberschreitung",
             
+            "Settings": "Einstellungen",
+            "Expert Parameters":   "Experten Parameter",
+
 
             "Geofency Trigger Radius": "Geofence Radius",
             "meter": "Meter",
