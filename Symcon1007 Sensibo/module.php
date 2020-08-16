@@ -330,7 +330,7 @@
 			{
 			// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "", 0);
 
-			// $this->GetIDForIdent("Status33321123");
+			
 
 			if ( isset($result['deviceUid']))
 				$deviceuid = $result['deviceUid'];
