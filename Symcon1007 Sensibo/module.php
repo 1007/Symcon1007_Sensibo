@@ -338,7 +338,7 @@
 				{
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "deviceUid NOK! Keine ClimaReact Einstellungen vorhanden", 0);
 				
-				$result = $this->CheckIndentExist("climareactonoff");
+				$result = $this->CheckIdentExist("climareactonoff");
 				if ( $result == TRUE )
 					$this->SetValue("climareactonoff", false); // wenn vorhanden
 				return false;
@@ -391,7 +391,7 @@
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold not found", 0);
 				return false;
 				}
-			
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold not found".$low, 0);
 			$name = $this->translate("Clima React Low");	
 			$this->SetValueToVariable($name,$low,"climareactlow","Sensibo.Threshold",90);	
 	
@@ -400,7 +400,7 @@
 				$on = $result['lowTemperatureState']['on'];
 			else
 				{
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold on not found", 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureState on not found", 0);
 				return false;
 				}
 			
@@ -411,7 +411,7 @@
 				$on = $result['highTemperatureState']['on'];
 			else
 				{
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold on not found", 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureState on not found", 0);
 				return false;
 				}
 			
@@ -424,7 +424,7 @@
 				$on = $result['lowTemperatureState']['fanLevel'];
 			else
 				{
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold fanLevel not found", 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureState fanLevel not found", 0);
 				return false;
 				}
 			
@@ -436,7 +436,7 @@
 				$on = $result['highTemperatureState']['fanLevel'];
 			else
 				{
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold fanlevel not found", 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureState fanlevel not found", 0);
 				return false;
 				}
 
@@ -450,7 +450,7 @@
 				$on = $result['lowTemperatureState']['mode'];
 			else
 				{
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold mode not found", 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureState mode not found", 0);
 				return false;
 				}
 			
@@ -462,7 +462,7 @@
 				$on = $result['highTemperatureState']['mode'];
 			else
 				{
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureThreshold mode not found", 0);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "highTemperatureState mode not found", 0);
 				return false;
 				}
 
