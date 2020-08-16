@@ -76,7 +76,7 @@
 		$this->RegisterProfile(1,"Sensibo.Entfernung"  	,"Distance"  	,"",$this->translate(" Meter"));
 
 		$this->RegisterProfile(2,"Sensibo.Solltemperatur"  	,"Temperature"  ,""," °C",15,30,1);
-		$this->RegisterProfile(2,"Sensibo.Threshold"  		,""  ,""," °C %");
+		$this->RegisterProfile(2,"Sensibo.Threshold"  		,""  ,""," °C %",false,false,false,1);
 
 		$this->RegisterProfileEinAus("Sensibo.EinAus", "Power", "", "", Array(
 			Array(0, $this->translate("off"),  	"", 0x0000FF),
@@ -391,7 +391,7 @@
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold not found", 0);
 				return false;
 				}
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "lowTemperatureThreshold not found".$low, 0);
+				
 			$name = $this->translate("Clima React Low");	
 			$this->SetValueToVariable($name,$low,"climareactlow","Sensibo.Threshold",90);	
 	
