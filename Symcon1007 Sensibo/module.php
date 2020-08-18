@@ -1114,8 +1114,6 @@
 		//**************************************************************************
 		public function Destroy()
 			{
-			$this->UnregisterTimer("SSB_UpdateTimer");
-
 			//Never delete this line!
 			parent::Destroy();
 			}
@@ -1445,7 +1443,7 @@
 			$profile = IPS_GetVariableProfile($Name);
 			if($profile['ProfileType'] != $Typ)
 				{
-				IPS_Logmessage("Sensibomodul","Profil falsch : " . $Name);
+				$this->Logmessage("Profil falsch : " . $Name, KL_WARNING);
 				//throw new Exception("Variable profile type does not match for profile ".$Name);
 
 				}
@@ -1650,7 +1648,7 @@
 						  {
 							"type":  "ExpansionPanel", "caption": "Expert Parameters",
 							"items": 	[
-							  			{"type": "CheckBox", "name": "ShowMoreDebug", "caption": "Aktivate more Debug"}
+							  			{"type": "CheckBox", "name": "ShowMoreDebug", "caption": "Show more Debug"}
 										]
 						  } 
 					],
