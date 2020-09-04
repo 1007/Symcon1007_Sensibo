@@ -285,6 +285,10 @@
 
                 $resultcurl = $this->DoCurl($url);
 
+				if ( $resultcurl == false )
+					return;
+
+
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Result : " .$resultcurl, 0);
 
 				$result = json_decode($resultcurl,true);
@@ -599,6 +603,9 @@
 			$this->SendDebug(__FUNCTION__."[".__LINE__."]",$url,0);
 
     		$resultcurl = $this->DoCurl($url);
+
+			if ( $resultcurl == false )
+				return;
 
     		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
@@ -1154,6 +1161,9 @@
 
 			$resultcurl = $this->DoCurlPUT($url,$postfields);
 
+			if ( $resultcurl == false )
+				return;
+
     		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
 			$result = json_decode($resultcurl,TRUE);
@@ -1174,7 +1184,11 @@
 			if ( $state == 'on' )
 				$this->SetACState(true);
 			if ( $state == 'off' )
+				{
+				$this->SetClimaReactOnOff(false);	
 				$this->SetACState(false);
+				}
+
 			}
 
 		//******************************************************************************
@@ -1299,6 +1313,10 @@
 	
 			
 			$resultcurl = $this->DoCurlPOST($url,$postfields);
+
+			if ( $resultcurl == false )
+				return;
+
 
     		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
@@ -1501,8 +1519,14 @@
 			{
 			$curl = curl_init($url);
 			curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+			curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,0);
+			curl_setopt($curl,CURLOPT_TIMEOUT,10);
+			
 			$output = curl_exec($curl);
 			curl_close($curl);
+
+			if ( $output == false )
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","CURL fehlgeschlagen",0);	
 			return $output;
 			}
 
@@ -1517,8 +1541,15 @@
 			curl_setopt($curl, CURLOPT_POST, 1);
 			curl_setopt($curl, CURLOPT_POSTFIELDS,$postfields);
 			curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+			curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,0);
+			curl_setopt($curl,CURLOPT_TIMEOUT,10);
+
 			$output = curl_exec($curl);
 			curl_close($curl);
+			
+			if ( $output == false )
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","CURL fehlgeschlagen",0);	
+			
 			return $output;
 			}
 
@@ -1533,8 +1564,16 @@
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
 			curl_setopt($curl, CURLOPT_POSTFIELDS,$postfields);
 			curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
+			curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,0);
+			curl_setopt($curl,CURLOPT_TIMEOUT,10);
+
 			$output = curl_exec($curl);
 			curl_close($curl);
+			
+			if ( $output == false )
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","CURL fehlgeschlagen",0);	
+			
+			
 			return $output;
 			}
 
@@ -1552,8 +1591,16 @@
 			curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
 			curl_setopt($curl, CURLOPT_POSTFIELDS,$postfields);
 			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+			curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,0);
+			curl_setopt($curl,CURLOPT_TIMEOUT,10);
+
+
 			$output = curl_exec($curl);
 			curl_close($curl);
+
+			if ( $output == false )
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","CURL fehlgeschlagen",0);	
+
 			return $output;
 			}
 
@@ -1618,7 +1665,7 @@
 				$date = $library['Date'];
 				$date = $this->TimestampToString($date);
 
-				$version = $name." " . $version . "#".$build ."[".$date."]"."10";
+				$version = $name." " . $version . "#".$build ."[".$date."]";
 				$form = '
 			
 				{
