@@ -44,6 +44,11 @@
 			// Diese Zeile nicht loeschen
 			parent::ApplyChanges();
 				
+			if (IPS_GetKernelRunlevel() !== KR_READY) 
+				{
+				return;
+				}
+
 			$this->RegisterAllProfile();
 
 			$this->GetConfigurationForm();
