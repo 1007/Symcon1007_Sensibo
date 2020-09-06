@@ -20,6 +20,9 @@
 		public function Create() 
 			{
 
+			// Diese Zeile nicht loeschen.
+			parent::Create();
+				
 			$this->RegisterPropertyInteger("Intervall", 10);
 
 			$this->RegisterPropertyString("APIKey", "");
@@ -29,8 +32,7 @@
 			$this->RegisterPropertyBoolean("Modulaktiv", true);
 			$this->RegisterPropertyBoolean("ShowMoreDebug", false);
 
-            // Diese Zeile nicht loeschen.
-            parent::Create();
+            
 
         	}
 
@@ -43,12 +45,7 @@
 
 			// Diese Zeile nicht loeschen
 			parent::ApplyChanges();
-				
-			if (IPS_GetKernelRunlevel() !== KR_READY) 
-				{
-				return;
-				}
-
+			
 			$this->RegisterAllProfile();
 
 			$this->GetConfigurationForm();
@@ -529,10 +526,21 @@
     		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
 			if ( $resultcurl == false )
-				return;
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result NOK: " .$resultcurl,0);
 				
+				return;
+				}
+
+			if ( is_string($resultcurl) )	
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result NOK: " .$resultcurl,0);
+
+			$s = "Test";	
+			// $this->WriteAttributeString("AllDevices","Test");
+			
 			$this->WriteAttributeString("AllDevices",$resultcurl);
 			
+
 			$result = json_decode($resultcurl,true);
 
 			if ( isset($result['result']))
