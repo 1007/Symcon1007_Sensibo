@@ -1156,7 +1156,7 @@
 		//	Clima React Mode
 		// 	true - false
 		//******************************************************************************
-    	public function SetClimaReactOnOff($state)
+    	public function SetClimaReactOnOff(bool $state)
     		{
 			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $state, 0);
 			
