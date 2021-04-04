@@ -310,7 +310,11 @@
 					return false;
                     }
 			
-			$this->DecodeClimateReact($result);		
+			
+
+			$this->DecodeClimateReact($result);	
+			
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Result : " .$resultcurl, 0);
 
             }
 
@@ -334,12 +338,15 @@
 		//**************************************************************************
 		protected function DecodeClimateReact($result)
 			{
-			// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "", 0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", "--", 0);
 
 			
 
 			if ( isset($result['deviceUid']))
+				{
 				$deviceuid = $result['deviceUid'];
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "deviceUid : " . $deviceuid, 0);
+				}
 			else
 				{
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "deviceUid NOK! Keine ClimaReact Einstellungen vorhanden", 0);
@@ -358,11 +365,18 @@
 				return false;
 				}
 
+				
+
 			$name = $this->translate("Clima React State");	
 			$this->SetValueToVariable($name,$enabled,"climareactonoff","Sensibo.EinAus",70);	
 			
+			
+
 			if ( isset($result['type']))
+				{
 				$type = $result['type'];
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "type : " . $type, 0);
+				}
 			else
 				{
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "type not found", 0);
@@ -501,10 +515,6 @@
 			$name = $this->translate("High Temperature Target");	
 			$this->SetValueToVariable($name,$on,"hightemperaturestatetarget","Sensibo.Threshold",82);	
 
-
-
-
-			// $this->SendDebug(__FUNCTION__."[".__LINE__."]", "", 0);
 
             }
 
@@ -1160,8 +1170,18 @@
     		{
 			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $state, 0);
 			
-			$this->SetValue('climareactonoff',$state);
-
+			$result = $this->CheckIdentExist("climareactonoff");
+			if ( $result == TRUE )
+				{
+				$this->SetValue('climareactonoff',$state);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","climareactonoff existiert", 0);	
+				}	
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","climareactonoff existiert nicht", 0);	
+				return;	
+				}
+				
 			$apikey = $this->GetAPIKey();
 			$deviceID = $this->GetDeviceID();
 
