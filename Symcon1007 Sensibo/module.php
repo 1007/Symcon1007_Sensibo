@@ -330,12 +330,13 @@
    		//**************************************************************************
 		// 
 		//**************************************************************************
-		protected function CheckIdentExist($ident)
+		protected function CheckIdentExist($ident,$error=true)
 			{
 			
 			$id = @$this->GetIDForIdent ($ident);	
 			if ( $id == FALSE )
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Ident existiert nicht : ".$ident, 0);
+				if ( $error == true)
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]", "Ident existiert nicht : ".$ident, 0);
 
 			return $id;
 
@@ -360,7 +361,7 @@
 				{
 				$this->SendDebug(__FUNCTION__."[".__LINE__."]", "deviceUid NOK! Keine ClimaReact Einstellungen vorhanden", 0);
 				
-				$result = $this->CheckIdentExist("climareactonoff");
+				$result = $this->CheckIdentExist("climareactonoff",false);
 				if ( $result == TRUE )
 					$this->SetValue("climareactonoff", false); // wenn vorhanden
 				return false;
@@ -1874,7 +1875,7 @@
 			curl_setopt($curl,CURLOPT_ACCEPT_ENCODING,"gzip");
 
 			curl_setopt($curl,CURLOPT_ENCODING, '' );
-			
+
 			$output = curl_exec($curl);
 			curl_close($curl);
 			
