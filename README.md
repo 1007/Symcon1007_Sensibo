@@ -43,10 +43,6 @@ SSB_SetACOn($InstanceID, "off");
 
 SSB_SetACTemperatur($InstanceID, 22);
 
-SSB_SetACSwing($InstanceID, "rangeFull");
-
-SSB_SetACSwing($InstanceID, "stopped");
-
 SSB_SetACFanLevel($InstanceID, "quiet");
 
 SSB_SetACFanLevel($InstanceID, "low");
@@ -74,7 +70,14 @@ SSB_SetClimaReactOnOff($InstanceID, TRUE);
 SSB_SetClimaReactOnOff($InstanceID, FALSE);
 
 
+*Beispiele - siehe Instanz-Formular-Information*
+SSB_SetACSwing($InstanceID, "rangeFull");                   
 
+SSB_SetACSwing($InstanceID, "stopped");
+
+SSB_SetACHorizontalSwing($InstanceID, "rangeFull");
+
+SSB_SetACHorizontalSwing($InstanceID, "stopped");
 
 
 

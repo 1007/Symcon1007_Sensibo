@@ -30,6 +30,7 @@
             "target temperature" : "Soll Temperatur",
             "mode" : "Modus",
             "swing" : "Schwenk",
+            "horizontal swing" : "Horizontalschwenk",
             "last connection" : "Letzte Verbindung",
             "last connection seconds" : "Letzte Verbindung seit",
             

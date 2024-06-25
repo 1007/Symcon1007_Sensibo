@@ -86,10 +86,16 @@
 			));
 	 
 		$this->RegisterProfileInteger("Sensibo.Swing", "", "", "", Array(
-				Array(0, $this->translate("stopped") ,  "",0),
-				Array(1, $this->translate("full range") 	,  "",0)
+				//Array(0, $this->translate("stopped") ,  "",0),
+				//Array(1, $this->translate("full range") 	,  "",0)
 				
 				));
+
+		$this->RegisterProfileInteger("Sensibo.HorizontalSwing", "", "", "", Array(
+				//Array(0, $this->translate("stopped") ,  "",0),
+				//Array(1, $this->translate("full range") 	,  "",0)
+					
+					));		
 
 		$this->RegisterProfileInteger("Sensibo.Fanlevel", "", "", "", Array(
 				Array(0, $this->translate("quiet")		,  	"Ventilation",0),
@@ -129,6 +135,9 @@
 	//**************************************************************************    
 	protected function RegisterProfileInteger($Name, $Icon, $Prefix, $Suffix, $Associations) 
 		{
+
+		$this->SendDebug(__FUNCTION__."[".__LINE__."]",$Name,0);
+
 		if ( sizeof($Associations) === 0 )
 			{
 			$MinValue = 0;
@@ -531,7 +540,7 @@
 
 			$this->SendDebug(__FUNCTION__."[".__LINE__."]",$url,0);
 
-			$resultcurl = $this->DoCurl($url);
+			$resultcurl = $this->DoCurl($url,FALSE,TRUE);		// debug,compressed
 
     		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
 
@@ -542,11 +551,11 @@
 				return;
 				}
 
-			if ( is_string($resultcurl) )	
-				$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result NOK: " .$resultcurl,0);
-
-			$s = "Test";	
-			// $this->WriteAttributeString("AllDevices","Test");
+			if ( is_string($resultcurl) == FALSE )
+				{	
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result is no String: " .$resultcurl,0);
+				return;
+				}
 			
 			$this->WriteAttributeString("AllDevices",$resultcurl);
 			
@@ -651,7 +660,7 @@
 
 
 			
-
+			$this->DecodeSwing(1,true,"HorizontalSwing");	
 
 			}
 
@@ -668,6 +677,118 @@
 		//**************************************************************************
 		//
 		//**************************************************************************
+		protected function CkeckRemoteCapabilities($result)
+			{
+			//$this->SendDebug(__FUNCTION__."[".__LINE__."]","",0);
+			
+			if ( isset($result['modes']['dry']['swing']))
+				{
+				$ProfilName = "Sensibo.Swing";
+				$level = $result['modes']['dry']['swing'];	
+				//print_r($level);	
+
+				// Test 
+				$level = array("stopped", "rangeFull", "fixedBottom", "fixedMiddleBottom", "fixedMiddle", "fixedMiddleTop", "fixedTop");
+
+				// testen ob schon identisch
+				$associations = array();
+				$array = IPS_GetVariableProfile($ProfilName);
+				if ( isset($array['Associations']) == true )
+					$associations = $array['Associations'];
+				$count = count($associations);
+				$ProfilEintraege = array();
+				foreach($associations as $d)
+					{
+					$Value = $d['Value'];
+					$Name = $d['Name'];
+					$ProfilEintraege[$Value] = $Name;
+					}
+				if ( $level === $ProfilEintraege )
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]","Profil Swing identisch : ".$count,0);
+				else
+					{
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]","Profil Swing nicht identisch : ".$count,0);	
+
+					$status = IPS_VariableProfileExists ($ProfilName);
+
+					for($x=0;$x<$count;$x++)
+						{
+						$this->SendDebug(__FUNCTION__."[".__LINE__."]","loesche : ".$x,0);	
+						IPS_SetVariableProfileAssociation($ProfilName,$x,"","",0);
+						}
+
+					foreach ($level as $key => $value)
+						{
+	
+						if ( $status == true )
+							{
+							$this->SendDebug(__FUNCTION__."[".__LINE__."]",$key . " - " . $value,0);
+							IPS_SetVariableProfileAssociation($ProfilName,$key,$value,"",0);
+
+							}
+						}
+					}	
+
+				}
+
+
+			if ( isset($result['modes']['dry']['horizontalSwing']))
+				{
+				$ProfilName = "Sensibo.HorizontalSwing";
+				$level = $result['modes']['dry']['horizontalSwing'];	
+				//print_r($level);
+
+				// Test
+				$level = array("fixedLeft", "fixedCenterLeft", "fixedCenter", "fixedCenterRight", "fixedRight", "rangeLeft", "rangeRight", "rangeFull", "stopped");
+
+
+				// testen ob schon identisch
+				$associations = array();
+				$array = IPS_GetVariableProfile($ProfilName);
+				
+				if ( isset($array['Associations']) == true )
+					$associations = $array['Associations'];
+				$count = count($associations);
+				$ProfilEintraege = array();
+				foreach($associations as $d)
+					{
+					$Value = $d['Value'];
+					$Name = $d['Name'];
+					$ProfilEintraege[$Value] = $Name;
+					}
+				if ( $level === $ProfilEintraege )
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]","Profil HorizontalSwing identisch : ".$count,0);
+				else
+					{
+					$this->SendDebug(__FUNCTION__."[".__LINE__."]","Profil HorizontalSwing nicht identisch : ".$count,0);	
+
+					$status = IPS_VariableProfileExists ($ProfilName);
+
+					for($x=0;$x<$count;$x++)
+						{
+						$this->SendDebug(__FUNCTION__."[".__LINE__."]","loesche : ".$x,0);	
+						IPS_SetVariableProfileAssociation($ProfilName,$x,"","",0);
+						}
+
+					foreach ($level as $key => $value)
+						{
+					
+						if ( $status == true )
+							{
+							$this->SendDebug(__FUNCTION__."[".__LINE__."]",$key . " - " . $value,0);
+							IPS_SetVariableProfileAssociation($ProfilName,$key,$value,"",0);
+
+							}
+						}
+					}	
+
+				}
+
+			}
+		
+		//**************************************************************************
+		//
+		//**************************************************************************
 		protected function DoDatas($result)
 			{
 			
@@ -677,6 +798,16 @@
 			else
 				return false;
 				
+			$level = $result;	
+
+
+			// Auswertung fuer Swing Moeglichkeiten
+			if (isset($result['remoteCapabilities']) == true) 
+				{
+				$level = $result['remoteCapabilities'];
+				$this->CkeckRemoteCapabilities($level);
+				}
+
 			$level = $result;	
 			$keys = array( 	array('macAddress',$this->translate("MAC address"),0,"",50), 
 							array('isGeofenceOnExitEnabled',$this->translate("geofency on exit"),0,"~Switch",61),
@@ -697,14 +828,15 @@
 			if (isset($result['acState']) == true) 
 				{
                 $level = $result['acState'];
-
+				
                 $keys = array( 	array('on',$this->translate("air conditioning state"),0,"Sensibo.EinAus",2),
                                 array('fanLevel',$this->translate("fan level"),3,"Sensibo.Fanlevel",11),
                                 array("temperatureUnit",$this->translate("temperature unit"),0),
                                 array("targetTemperature",$this->translate("target temperature"),2,"Sensibo.Solltemperatur",4),
                                 array("mode",$this->translate("mode"),3,"Sensibo.Modus",10),
 								array("swing",$this->translate("swing"),3,"Sensibo.Swing",12),
-                            
+								array("horizontalSwing",$this->translate("horizontal swing"),3,"Sensibo.HorizontalSwing",12),
+
                                     );
 				$this->DoKeys($level, $keys, "acState");
 				
@@ -807,7 +939,7 @@
 				
 						
 					// $value von String in Integer wandeln
-					if ($ident == "acStateswing" )
+					if ($ident == "acStateswing" OR $ident == "acStatehorizontalSwing" )
 						{
 						if ( $value == "stopped" )
 							$value = 0;
@@ -904,7 +1036,7 @@
 	
 					
 
-
+					
 					$this->SetValueToVariable($name,$value,$ident,$profil,$position);	
 					}	
 				else
@@ -981,6 +1113,11 @@
 				{
                 $enableAction = true;    
                 }	
+			
+			if ($ident == "acStatehorizontalSwing") 
+				{
+                $enableAction = true;    
+                }		
 				
 			if ($ident == "climareactonoff") 
 				{
@@ -1206,6 +1343,79 @@
 			return $status;
 
 			}
+		//******************************************************************************
+		//	Clima React Configuration
+		// 	
+		//******************************************************************************
+    	public function SetClimaReactConfiguration(bool $state,$low,$high)
+    		{
+			$status = true;
+			$true = true;
+			$false = false;
+
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $state, 0);
+			
+			$result = $this->CheckIdentExist("climareactonoff");
+			if ( $result == TRUE )
+				{
+				$this->SetValue('climareactonoff',$state);
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","climareactonoff existiert", 0);	
+				}	
+			else
+				{
+				$this->SendDebug(__FUNCTION__."[".__LINE__."]","climareactonoff existiert nicht", 0);	
+				return;	
+				}
+				
+			$apikey = $this->GetAPIKey();
+			$deviceID = $this->GetDeviceID();
+
+			$postfields = json_encode( array('enabled'=> $state,
+											'lowTemperatureThreshold'=> $low,
+											'highTemperatureThreshold'=> $high,
+											
+												'lowTemperatureState'=>
+													array(
+															'on'=> true,
+															'targetTemperature'=> 27,
+															'temperatureUnit'=> 'C',
+															'mode'=> 'cool',
+															'fanLevel'=> 'quiet'
+															),	
+												'highTemperatureState'=>
+													array(
+
+															'on'=> true,		
+															'targetTemperature'=> 27,
+															'temperatureUnit'=> 'C',
+															'mode'=> 'cool',
+															'fanLevel'=> 'quiet'
+															)
+
+
+												)
+												);
+
+			$url = "https://home.sensibo.com/api/v2/pods/".$deviceID."/smartmode?apiKey=".$apikey;
+	
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $url, 0);
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $postfields, 0);
+
+
+			$resultcurl = $this->DoCurlPUT($url,$postfields);
+
+			if ( $resultcurl == false )
+				return;
+
+    		$this->SendDebug(__FUNCTION__."[".__LINE__."]","Result : " .$resultcurl,0);
+
+			$result = json_decode($resultcurl,TRUE);
+
+			$status = $this->CheckResult($result);
+
+			return $status;
+
+			}
 
 		//******************************************************************************
 		//	AC Mode On
@@ -1231,7 +1441,7 @@
     	public function SetACMode(string $mode)
     		{
 			$mode = $this->DecodeMode($mode,false);	
-			// $this->SendDebug(__FUNCTION__."[".__LINE__."]",": ".$mode ,0);	
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]",": ".$mode ,0);	
 			$this->SetACState(true,false,false,false,$mode);	
     		}
 
@@ -1255,12 +1465,27 @@
 			$this->SetACState(true,false,$mode);	
     		}
 
+
+		//******************************************************************************
+		//	AC Horizontal Swing Umschalten
+		// 	swing = stopped - rangeFull Beispiel
+		//******************************************************************************
+    	public function SetACHorizontalSwing(string $mode)
+    		{
+			//$mode = $this->DecodeSwing($mode,false);	
+			//$this->SetACState(true,false,$mode);	
+    		}
+
 		//******************************************************************************
 		//	AC Solltemperatur
 		//******************************************************************************
     	public function SetACTemperatur(int $temperatur)
     		{
-    		$this->SetACState(true,$temperatur);	
+
+			$status = $this->GetValue("acStateon");
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","".$status,0);	
+
+    		$this->SetACState($status,$temperatur);	
     		}
 
 		//******************************************************************************
@@ -1320,6 +1545,8 @@
 				$Swing1 = "stopped";
 			if ( $Swing == 1 )
 				$Swing1 = "rangeFull";
+			if ( $Swing == 2 )
+				$Swing1 = "fixedBottom";
 			$Swing = $Swing1;
 			
 			// "temperatureUnit" => "C",
@@ -1407,17 +1634,51 @@
 		//**************************************************************************
 		//
 		//**************************************************************************
-		protected function DecodeSwing($value,$modus)
+		protected function DecodeSwing($value,$modus,$swing = "Swing")
 			{
-			
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", "" ,0);
+				
 			$return = false;
+
+			if ( $swing == "Swing" )
+				$profil = "Sensibo.Swing";	
+			else
+				$profil = "Sensibo.HorizontalSwing";
+
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", $profil ,0);
+
+			$associations = array();
+			$array = IPS_GetVariableProfile($profil);
+			if ( isset($array['Associations']) == true )
+				$associations = $array['Associations'];
+
+			
+			if ( $modus == true )	// wandele Integer in Namen
+				{
+				
+				foreach($associations as $d)
+					{
+					$Value1 = $d['Value'];
+					$Name = $d['Name'];
+				
+					if ( $Value1 == $value )
+						{
+						$return = $Name;	
+						break;
+						}
+					}
+				}	
+			else					// wandele Namen in Integer
+				{
+
+				}
 	
 			if ( $modus == true )	// wandele Integer in Namen
 				{
-				if ( $value == 0 )
-					$return = "stopped";
-				if ( $value == 1 )
-					$return = "rangeFull";
+				//if ( $value == 0 )
+				//	$return = "stopped";
+				//if ( $value == 1 )
+				//	$return = "rangeFull";
 				
 				}	
 			else					// wandele Namen in Integer
@@ -1429,6 +1690,10 @@
 	
 				}	
 	
+
+			$s = $return;	
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]", "x:".$s ,0);
+
 			return $return;	
 	
 			}		
@@ -1548,13 +1813,19 @@
    		//******************************************************************************
 		//	Curl GET Abfrage ausfuehren
 		//******************************************************************************
-		protected function DoCurl(string $url,bool $debug=false)
+		protected function DoCurl(string $url,bool $debug=false,$compressed = false)
 			{
 			$curl = curl_init($url);
 			curl_setopt($curl,CURLOPT_RETURNTRANSFER,true);
 			curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,0);
 			curl_setopt($curl,CURLOPT_TIMEOUT,10);
 			
+			curl_setopt($curl,CURLOPT_ACCEPT_ENCODING,"gzip");
+
+			curl_setopt($curl,CURLOPT_ENCODING, '' );
+			$this->SendDebug(__FUNCTION__."[".__LINE__."]","CURL ENCODING",0);	
+			
+	
 			$output = curl_exec($curl);
 			curl_close($curl);
 
@@ -1600,6 +1871,10 @@
 			curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,0);
 			curl_setopt($curl,CURLOPT_TIMEOUT,10);
 
+			curl_setopt($curl,CURLOPT_ACCEPT_ENCODING,"gzip");
+
+			curl_setopt($curl,CURLOPT_ENCODING, '' );
+			
 			$output = curl_exec($curl);
 			curl_close($curl);
 			
@@ -1682,7 +1957,72 @@
 			return date('d.m.Y H:i:s',$timestamp);
 			}
 
+		//******************************************************************************
+		//	
+		//******************************************************************************
+		protected function GetHSchwenkInfos()
+			{
+			
+			$s = '{"type": "Label",  "caption": "Horizontal Schwenkmoeglichkeiten :"}';
+			$s= "";
+			
+			$profil = "Sensibo.HorizontalSwing";
 
+			$associations = array();
+			$array = IPS_GetVariableProfile($profil);
+			if ( isset($array['Associations']) == true )
+    			$associations = $array['Associations'];
+
+			
+			foreach($associations as $d)
+				{
+				$Value = $d['Value'];
+				$Name = $d['Name'];
+			
+				$s1 = '{"type": "Label",  "caption": "     ['.$Value.'] '.$Name.'"},';
+
+				$s = $s . $s1;
+
+				//echo "\n" . $Name;
+			
+				}
+
+			return $s;
+			}
+
+		//******************************************************************************
+		//	
+		//******************************************************************************
+		protected function GetVSchwenkInfos()
+			{
+			
+			$s = '{"type": "Label",  "caption": "Vertikale Schwenkmoeglichkeiten :"}';
+			$s = "";
+
+			$profil = "Sensibo.Swing";
+
+			$associations = array();
+			$array = IPS_GetVariableProfile($profil);
+			if ( isset($array['Associations']) == true )
+    			$associations = $array['Associations'];
+
+			
+			foreach($associations as $d)
+				{
+				$Value = $d['Value'];
+				$Name = $d['Name'];
+			
+				$s1 = '{"type": "Label",  "caption": "     ['.$Value.'] '.$Name.'"},';
+
+				$s = $s . $s1;
+
+				//echo "\n" . $Name;
+			
+				}
+
+
+			return $s;
+			}
 
 
 		//******************************************************************************
@@ -1730,7 +2070,24 @@
 							"items": 	[
 							  			{"type": "CheckBox", "name": "ShowMoreDebug", "caption": "Show more Debug"}
 										]
+						  } ,
+
+						  {
+							"type":  "ExpansionPanel", "caption": "Informationen",
+							"items": 	[
+							  			{"type": "Label",  "caption": "Horizontal Schwenkmoeglichkeiten :"},
+
+										'. $this->GetHSchwenkInfos() . '  
+										{"type": "Label",  "caption": ""},
+
+										{"type": "Label",  "caption": "Vertikale Schwenkmoeglichkeiten :"},  
+								
+										'. $this->GetVSchwenkInfos() . '
+										{"type": "Label",  "caption": ""}
+										]
 						  } 
+
+
 					],
 					
 					"actions":
