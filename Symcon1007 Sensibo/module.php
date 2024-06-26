@@ -1849,6 +1849,10 @@
 			curl_setopt($curl,CURLOPT_CONNECTTIMEOUT,0);
 			curl_setopt($curl,CURLOPT_TIMEOUT,10);
 
+			curl_setopt($curl,CURLOPT_ACCEPT_ENCODING,"gzip");
+
+			curl_setopt($curl,CURLOPT_ENCODING, '' );
+
 			$output = curl_exec($curl);
 			curl_close($curl);
 			
